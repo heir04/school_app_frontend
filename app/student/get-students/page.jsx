@@ -354,13 +354,19 @@ const Students = () => {
         {error && <ErrorAlert message={error} onClose={() => setError('')} />}
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Students Management</h2>
-          <Link href="/student/create-student">
-            <ActionButton 
-              icon={Plus} 
-              label="Add Student" 
-              disabled={isLoading}
-            />
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+            <Link href="/student/create-student">
+              <ActionButton 
+                icon={Plus} 
+                label="Add Student" 
+                disabled={isLoading}
+              />
+            </Link>
+            <Link href="/admin" className="flex items-center gap-2 text-gray-600 hover:text-gray-800">
+              <ArrowLeft className="w-4 h-4" />
+              Back to Admin
+            </Link>
+          </div>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center flex-wrap">
           <div className="flex items-center gap-2 flex-1 min-w-[200px]">
@@ -383,10 +389,6 @@ const Students = () => {
               <option key={level.id} value={level.levelName}>{level.levelName}</option>
             ))}
           </select>
-          <Link href="/admin" className="flex items-center gap-2 text-gray-600 hover:text-gray-800">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Admin
-          </Link>
         </div>
         {isLoading ? (
           <div className="flex justify-center py-8">

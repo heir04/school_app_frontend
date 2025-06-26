@@ -356,13 +356,19 @@ const Teachers = () => {
         {error && <ErrorAlert message={error} onClose={() => setError('')} />}
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Teachers Management</h2>
-          <Link href="/teacher/create-teacher">
-            <ActionButton 
-              icon={Plus} 
-              label="Add Teacher" 
-              disabled={isLoading}
-            />
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+            <Link href="/teacher/create-teacher">
+              <ActionButton 
+                icon={Plus} 
+                label="Add Teacher" 
+                disabled={isLoading}
+              />
+            </Link>
+            <Link href="/admin" className="flex items-center gap-2 text-gray-600 hover:text-gray-800">
+              <ArrowLeft className="w-4 h-4" />
+              Back to Admin
+            </Link>
+          </div>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
           <div className="flex items-center gap-2 flex-1 min-w-[200px]">
@@ -375,10 +381,6 @@ const Teachers = () => {
               className="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-          <Link href="/admin" className="flex items-center gap-2 text-gray-600 hover:text-gray-800">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Admin
-          </Link>
         </div>
         {isLoading ? (
           <div className="flex justify-center py-8">
