@@ -6,8 +6,7 @@ import {
   GraduationCap, 
   Upload, 
   Save, 
-  Loader2, 
-  X, 
+  Loader2,
   AlertCircle,
   ArrowLeft 
 } from 'lucide-react';
@@ -15,28 +14,12 @@ import { withAuth } from '../../contexts/AuthContext';
 
 const API_BASE_URL = 'http://localhost:5130/api';
 
-// Move FormField component OUTSIDE of TeacherCreate
 const FormField = ({ label, type = 'text', value, onChange, options, multiple = false, required = false }) => (
   <div className="mb-4">
     <label className="block text-sm font-medium text-gray-700 mb-2">
       {label} {required && <span className="text-red-500">*</span>}
     </label>
-    {type === 'select' ? (
-      <select
-        value={value}
-        onChange={onChange}
-        multiple={multiple}
-        required={required}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-      >
-        {!multiple && <option value="">Select {label}</option>}
-        {options?.map(option => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    ): type === 'radio' ? (
+    { type === 'radio' ? (
       <div className="flex gap-4">
         {options?.map(option => (
           <label key={option.value} className="flex items-center gap-1">
@@ -76,7 +59,7 @@ const ErrorAlert = ({ message }) => (
   </div>
 );
 
-const TeacherCreate = () => {
+const AdminCreate = () => {
   const router = useRouter();
   const [formData, setFormData] = useState({
     firstName: '',
@@ -86,13 +69,8 @@ const TeacherCreate = () => {
     address: '',
     gender: '',
     dateOfBirth: '',
-
-    subjectIds: []
   });
-  const [subjects, setSubjects] = useState([]);
-  const [uploadFile, setUploadFile] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadResults, setUploadResults] = useState(null);
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -129,20 +107,6 @@ const TeacherCreate = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchSubjects = async () => {
-      try {
-        const response = await apiCall('/Subject/GetAll');
-        if (response.status && response.data) {
-          setSubjects(response.data);
-        }
-      } catch (error) {
-        setError(`Failed to fetch subjects: ${error.message}`);
-      }
-    };
-    fetchSubjects();
-  }, []);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -156,50 +120,16 @@ const TeacherCreate = () => {
       data.append('address', formData.address);
       data.append('gender', formData.gender);
       data.append('dateOfBirth', formData.dateOfBirth);
-      formData.subjectIds.forEach(id => data.append('subjectIds', id));
 
-      await apiCall('/Teacher/Register', {
+      await apiCall('/Admin/Register', {
         method: 'POST',
         headers: getAuthHeaders(),
         body: data
       });
 
-      router.push('/teacher/get-teachers');
+      router.push('/get-admins');
     } catch (error) {
-      setError(`Failed to create teacher: ${error.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleBulkUpload = async (e) => {
-    e.preventDefault();
-    if (!uploadFile) return;
-
-    setIsLoading(true);
-    setUploadProgress(0);
-    
-    try {
-      const formData = new FormData();
-      formData.append('file', uploadFile);
-      formData.append('type', 'teachers');
-
-      const response = await fetch(`${API_BASE_URL}/Teacher/BulkUpload`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: formData
-      });
-
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${response.status}`);
-      }
-
-      const result = await response.json();
-      setUploadResults(result);
-      setUploadFile(null);
-      setUploadProgress(100);
-    } catch (error) {
-      setError(`Bulk upload failed: ${error.message}`);
+      setError(`Failed to create admin: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -211,7 +141,7 @@ const TeacherCreate = () => {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <GraduationCap className="w-6 h-6 text-blue-600" />
-            Add New Teacher
+            Add New Admin
           </h1>
           <Link href="/admin" className="flex items-center gap-2 text-gray-600 hover:text-gray-800">
             <ArrowLeft className="w-4 h-4" />
@@ -222,7 +152,7 @@ const TeacherCreate = () => {
         {error && <ErrorAlert message={error} />}
 
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Teacher Details</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Admin Details</h2>
           <form onSubmit={handleSubmit}>
             <FormField
               label="First Name"
@@ -275,19 +205,8 @@ const TeacherCreate = () => {
               onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
               required
             />
-            <FormField
-              label="Subjects"
-              type="select"
-              value={formData.subjectIds}
-              onChange={(e) => {
-                const selectedIds = Array.from(e.target.selectedOptions).map(option => option.value);
-                setFormData({ ...formData, subjectIds: selectedIds });
-              }}
-              options={subjects.map(subject => ({ value: subject.id, label: subject.name }))}
-              multiple
-            />
             <div className="flex justify-end gap-2 mt-6">
-              <Link href="/admin" className="px-4 py-2 text-gray-600 hover:text-gray-800 rounded-sm">
+              <Link href="/admin?tab=teachers" className="px-4 py-2 text-gray-600 hover:text-gray-800 rounded-sm">
                 Cancel
               </Link>
               <button
@@ -310,96 +229,9 @@ const TeacherCreate = () => {
             </div>
           </form>
         </div>
-
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Bulk Upload Teachers</h2>
-          <form onSubmit={handleBulkUpload}>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Upload CSV File</label>
-              <div className="flex items-center justify-center w-full">
-                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
-                  {uploadFile ? (
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <p className="mb-2 text-sm text-gray-700">{uploadFile.name}</p>
-                      <p className="text-xs text-gray-400">Click to change file</p>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <Upload className="w-8 h-8 mb-4 text-gray-500" />
-                      <p className="mb-2 text-sm text-gray-500">
-                        <span className="font-semibold">Click to upload</span> or drag and drop
-                      </p>
-                      <p className="text-xs text-gray-400">CSV files only</p>
-                    </div>
-                  )}
-                  <input
-                    type="file"
-                    accept=".csv"
-                    className="hidden"
-                    onChange={(e) => setUploadFile(e.target.files[0])}
-                  />
-                </label>
-              </div>
-            </div>
-
-            {uploadProgress > 0 && (
-              <div className="mb-4">
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div
-                    className="bg-blue-600 h-2.5 rounded-full"
-                    style={{ width: `${uploadProgress}%` }}
-                  ></div>
-                </div>
-                <p className="text-sm text-gray-600 mt-2">Upload Progress: {uploadProgress}%</p>
-              </div>
-            )}
-
-            {uploadResults && (
-              <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Upload Results</h3>
-                <p className="text-sm text-gray-600">
-                  Success: {uploadResults.successCount || 0} records processed
-                </p>
-                {uploadResults.errors && uploadResults.errors.length > 0 && (
-                  <div className="mt-2">
-                    <p className="text-sm text-red-600">Errors:</p>
-                    <ul className="list-disc list-inside text-sm text-red-600">
-                      {uploadResults.errors.map((err, index) => (
-                        <li key={index}>{err}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            )}
-
-            <div className="flex justify-end gap-2 mt-6">
-              <Link href="/admin?tab=teachers" className="px-4 py-2 text-gray-600 hover:text-gray-800 rounded-sm">
-                Cancel
-              </Link>
-              <button
-                type="submit"
-                disabled={isLoading || !uploadFile}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Uploading...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="w-4 h-4" />
-                    Upload
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        </div>
       </div>
     </div>
   );
 };
 
-export default withAuth(TeacherCreate, ['admin']);
+export default withAuth(AdminCreate, ['admin']);

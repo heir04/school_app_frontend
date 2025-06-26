@@ -100,6 +100,18 @@ const Navbar = () => {
     }
   }, [user, isAuthenticated]);
 
+  // Add event listener for orientation change
+  useEffect(() => {
+    const handleOrientationChange = () => {
+      if (window.innerWidth <= 768) {
+        setIsProfileDropdownOpen(false); // Ensure dropdown is closed on rotation
+      }
+    };
+
+    window.addEventListener('orientationchange', handleOrientationChange);
+    return () => window.removeEventListener('orientationchange', handleOrientationChange);
+  }, []);
+
   // Don't render navbar if not authenticated
   if (!isAuthenticated) {
     return null;
@@ -394,11 +406,6 @@ const ProfileModal = ({ user, userDetails, isLoading, onClose }) => {
                 loading={isLoading} 
               />
               
-              <ProfileField 
-                label="Status" 
-                value={userDetails?.isActive ? 'Active' : 'Inactive'} 
-                loading={isLoading} 
-              />
             </div>
           </div>
         </div>

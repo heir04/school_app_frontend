@@ -1,7 +1,8 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { Save, Users, BookOpen, AlertCircle, CheckCircle, XCircle, Clock, AlertTriangle, X } from 'lucide-react';
+import { Save, Users, BookOpen, AlertCircle, CheckCircle, XCircle, Clock, AlertTriangle, X, ArrowLeft, Award } from 'lucide-react';
 import { withAuth } from '../../contexts/AuthContext';
+import Link from 'next/link';
 
 const API_BASE_URL = 'http://localhost:5130/api';
 
@@ -296,6 +297,12 @@ const BulkResultDashboard = () => {
             </button>
           </div>
         )}
+        <div className="flex justify-end mb-6">
+          <Link href="/result" className="flex items-center gap-2 text-gray-600 hover:text-gray-800">
+            <ArrowLeft className="w-4 h-4" />
+            Back to Dashboard
+          </Link>
+        </div>
 
         <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="flex items-center space-x-3 mb-6">
@@ -481,7 +488,7 @@ const BulkResultDashboard = () => {
                   }}
                   className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                 >
-                  Clear All Scores
+                  Clear All
                 </button>
                 <button
                   type="submit"
@@ -496,7 +503,7 @@ const BulkResultDashboard = () => {
                   ) : (
                     <>
                       <Save className="w-5 h-5" />
-                      <span>Submit All Results</span>
+                      <span>Submit</span>
                     </>
                   )}
                 </button>

@@ -148,7 +148,7 @@ const StudentCreate = () => {
         body: data
       });
 
-      router.push('/admin?tab=students');
+      router.push('/student/get-students');
     } catch (error) {
       setError(`Failed to create student: ${error.message}`);
     } finally {
@@ -206,7 +206,7 @@ const StudentCreate = () => {
             <Users className="w-6 h-6 text-blue-600" />
             Add New Student
           </h1>
-          <Link href="/admin?tab=students" className="flex items-center gap-2 text-gray-600 hover:text-gray-800">
+          <Link href="/admin" className="flex items-center gap-2 text-gray-600 hover:text-gray-800">
             <ArrowLeft className="w-4 h-4" />
             Back to Admin
           </Link>

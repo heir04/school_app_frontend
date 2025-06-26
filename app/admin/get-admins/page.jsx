@@ -177,13 +177,13 @@ const DataTable = ({ data, columns, actions }) => (
   </div>
 );
 
-const Teachers = () => {
+const Admins = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showTeacherModal, setShowTeacherModal] = useState(false);
-  const [editingTeacher, setEditingTeacher] = useState(null);
-  const [teacherForm, setTeacherForm] = useState({
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [editingAdmin, setEditingAdmin] = useState(null);
+  const [adminForm, setAdminForm] = useState({
     firstName: '',
     lastName: '',
     email: '',
@@ -193,9 +193,7 @@ const Teachers = () => {
     address: '',
     subjectIds: []
   });
-  const [teachers, setTeachers] = useState([]);
-  const [subjects, setSubjects] = useState([]);
-
+  const [admins, setAdmins] = useState([]);
   const getAuthToken = () => localStorage.getItem('auth-token');
 
   const getAuthHeaders = (isJson = true) => ({
@@ -231,13 +229,11 @@ const Teachers = () => {
     setIsLoading(true);
     setError('');
     try {
-      const [teachersRes, subjectsRes] = await Promise.all([
-        apiCall('/Teacher/GetAll'),
-        apiCall('/Subject/GetAll')
+      const [adminsRes] = await Promise.all([
+        apiCall('/Admin/GetAll'),
       ]);
 
-      if (teachersRes.status && teachersRes.data) setTeachers(teachersRes.data);
-      if (subjectsRes.status && subjectsRes.data) setSubjects(subjectsRes.data);
+      if (adminsRes.status && adminsRes.data) setAdmins(adminsRes.data);
     } catch (error) {
       setError(error.message);
       console.error('Error fetching data:', error);
@@ -250,104 +246,96 @@ const Teachers = () => {
     fetchData();
   }, []);
 
-  const handleDeleteTeacher = async (teacher) => {
-    if (!confirm(`Are you sure you want to delete ${teacher.firstName} ${teacher.lastName}?`)) return;
+  const handleDeleteAdmin = async (admin) => {
+    if (!confirm(`Are you sure you want to delete ${admin.firstName} ${admin.lastName}?`)) return;
     try {
       setIsLoading(true);
-      await apiCall(`/Teacher/Delete/${teacher.id}`, { method: 'POST' });
+      await apiCall(`/Admin/Delete/${admin.id}`, { method: 'POST' });
       await fetchData();
     } catch (error) {
-      setError(`Failed to delete teacher: ${error.message}`);
+      setError(`Failed to delete Admin: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleEditTeacher = (teacher) => {
-    setEditingTeacher(teacher);
-    setTeacherForm({
-      firstName: teacher.firstName || '',
-      lastName: teacher.lastName || '',
-      email: teacher.email || '',
-      phoneNumber: teacher.phoneNumber || '',
-      dateOfBirth: teacher.dateOfBirth || '',
-      gender: teacher.gender || '',
-      address: teacher.address || '',
-      subjectIds: teacher.subjects ? subjects.filter(s => teacher.subjects.includes(s.name)).map(s => s.id) : []
+  const handleEditAdmin = (admin) => {
+    setEditingAdmin(admin);
+    setAdminForm({
+      firstName: admin.firstName || '',
+      lastName: admin.lastName || '',
+      email: admin.email || '',
+      phoneNumber: admin.phoneNumber || '',
+      dateOfBirth: admin.dateOfBirth || '',
+      gender: admin.gender || '',
+      address: admin.address || ''
     });
-    setShowTeacherModal(true);
+    setShowAdminModal(true);
   };
 
-  const updateTeacher = async (id) => {
+  const updateAdmin = async (id) => {
     const payload = {
-      firstName: teacherForm.firstName,
-      lastName: teacherForm.lastName,
-      email: teacherForm.email,
-      phoneNumber: teacherForm.phoneNumber,
-      dateOfBirth: teacherForm.dateOfBirth,
-      gender: teacherForm.gender,
-      address: teacherForm.address,
-      subjectIds: teacherForm.subjectIds
+      firstName: adminForm.firstName,
+      lastName: adminForm.lastName,
+      email: adminForm.email,
+      phoneNumber: adminForm.phoneNumber,
+      dateOfBirth: adminForm.dateOfBirth,
+      gender: adminForm.gender,
+      address: adminForm.address
     };
 
-    await apiCall(`/Teacher/Update/${id}`, {
+    await apiCall(`/Admin/Update/${id}`, {
       method: 'PUT',
       body: JSON.stringify(payload)
     });
   };
 
-  const handleTeacherSubmit = async (e) => {
+  const handleAdminSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      if (editingTeacher) {
-        await updateTeacher(editingTeacher.id);
+      if (editingAdmin) {
+        await updateAdmin(editingAdmin.id);
       } else {
-        await createTeacher();
+        await createAdmin();
       }
       await fetchData();
-      setShowTeacherModal(false);
-      setEditingTeacher(null);
-      setTeacherForm({ firstName: '', lastName: '', email: '', phoneNumber: '', dateOfBirth: '', gender: '', address: '', subjectIds: [] });
+      setShowAdminModal(false);
+      setEditingAdmin(null);
+      setAdminForm({ firstName: '', lastName: '', email: '', phoneNumber: '', dateOfBirth: '', gender: '', address: '', subjectIds: [] });
     } catch (error) {
-      setError(`Failed to ${editingTeacher ? 'update' : 'create'} teacher: ${error.message}`);
+      setError(`Failed to ${editingAdmin ? 'update' : 'create'} Admin: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const filteredTeachers = teachers.filter(teacher => {
+  const filteredAdmins = admins.filter(admin => {
     return searchTerm === '' || 
-      `${teacher.firstName} ${teacher.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      teacher.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      teacher.subjects?.some(subject => subject.toLowerCase().includes(searchTerm.toLowerCase()));
+      `${admin.firstName} ${admin.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      admin.email?.toLowerCase().includes(searchTerm.toLowerCase())
   });
 
-  const teacherColumns = [
+  const AdminColumns = [
     { 
       key: 'name', 
       header: 'Name',
-      render: (teacher) => `${teacher.firstName} ${teacher.lastName}`
+      render: (admin) => `${admin.firstName} ${admin.lastName}`
     },
     { key: 'email', header: 'Email' },
-    { 
-      key: 'subjects', 
-      header: 'Subjects',
-      render: (teacher) => teacher.subjects ? teacher.subjects.join(', ') : 'N/A'
-    },
     { key: 'phoneNumber', header: 'Phone No.' },
     { key: 'dateOfBirth', header: 'Date Of Birth'},
     { key: 'gender', header: 'Gender'},
     { 
       key: 'createdOn', 
       header: 'Registered',
-      render: (teacher) => teacher.createdOn ? new Date(teacher.createdOn).toLocaleDateString() : 'N/A'
+      render: (admin) => admin.createdOn ? new Date(admin.createdOn).toLocaleDateString() : 'N/A'
     }
   ];
 
-  const teacherActions = [
-    { icon: Edit, label: 'Edit', onClick: handleEditTeacher, className: 'text-green-600 hover:bg-green-100' },
-    { icon: Trash2, label: 'Delete', onClick: handleDeleteTeacher, className: 'text-red-600 hover:bg-red-100' }
+  const AdminActions = [
+    { icon: Edit, label: 'Edit', onClick: handleEditAdmin, className: 'text-green-600 hover:bg-green-100' },
+    { icon: Trash2, label: 'Delete', onClick: handleDeleteAdmin, className: 'text-red-600 hover:bg-red-100' }
   ];
 
   return (
@@ -355,11 +343,11 @@ const Teachers = () => {
       <div className="space-y-4 sm:space-y-6">
         {error && <ErrorAlert message={error} onClose={() => setError('')} />}
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Teachers Management</h2>
-          <Link href="/teacher/create-teacher">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Admins Management</h2>
+          <Link href="/admin/create-admin">
             <ActionButton 
               icon={Plus} 
-              label="Add Teacher" 
+              label="Add Admin" 
               disabled={isLoading}
             />
           </Link>
@@ -369,7 +357,7 @@ const Teachers = () => {
             <Search className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Search teachers..."
+              placeholder="Search Admins..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -385,54 +373,54 @@ const Teachers = () => {
             <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600"></div>
           </div>
         ) : (
-          <DataTable data={filteredTeachers} columns={teacherColumns} actions={teacherActions} />
+          <DataTable data={filteredAdmins} columns={AdminColumns} actions={AdminActions} />
         )}
         <Modal
-          show={showTeacherModal}
+          show={showAdminModal}
           onClose={() => {
-            setShowTeacherModal(false);
-            setEditingTeacher(null);
-            setTeacherForm({ firstName: '', lastName: '', email: '', phoneNumber: '', dateOfBirth: '', gender: '', address: '', subjectIds: [] });
+            setShowAdminModal(false);
+            setEditingAdmin(null);
+            setAdminForm({ firstName: '', lastName: '', email: '', phoneNumber: '', dateOfBirth: '', gender: '', address: ''});
           }}
-          title={'Edit Teacher'}
+          title={'Edit Admin'}
           size="md"
         >
-          <form onSubmit={handleTeacherSubmit}>
+          <form onSubmit={handleAdminSubmit}>
             <FormField
               label="First Name"
-              value={teacherForm.firstName}
-              onChange={(e) => setTeacherForm({ ...teacherForm, firstName: e.target.value })}
+              value={adminForm.firstName}
+              onChange={(e) => setAdminForm({ ...adminForm, firstName: e.target.value })}
               required
             />
             <FormField
               label="Last Name"
-              value={teacherForm.lastName}
-              onChange={(e) => setTeacherForm({ ...teacherForm, lastName: e.target.value })}
+              value={adminForm.lastName}
+              onChange={(e) => setAdminForm({ ...adminForm, lastName: e.target.value })}
               required
             />
             <FormField
               label="Email"
               type="email"
-              value={teacherForm.email}
-              onChange={(e) => setTeacherForm({ ...teacherForm, email: e.target.value })}
+              value={adminForm.email}
+              onChange={(e) => setAdminForm({ ...adminForm, email: e.target.value })}
               required
             />
             <FormField
               label="Phone Number"
-              value={teacherForm.phoneNumber}
-              onChange={(e) => setTeacherForm({ ...teacherForm, phoneNumber: e.target.value })}
+              value={adminForm.phoneNumber}
+              onChange={(e) => setAdminForm({ ...adminForm, phoneNumber: e.target.value })}
             />
             <FormField
               label="Date of Birth"
               type="date"
-              value={teacherForm.dateOfBirth}
-              onChange={(e) => setTeacherForm({ ...teacherForm, dateOfBirth: e.target.value })}
+              value={adminForm.dateOfBirth}
+              onChange={(e) => setAdminForm({ ...adminForm, dateOfBirth: e.target.value })}
             />
             <FormField
               label="Gender"
               type="select"
-              value={teacherForm.gender}
-              onChange={(e) => setTeacherForm({ ...teacherForm, gender: e.target.value })}
+              value={adminForm.gender}
+              onChange={(e) => setAdminForm({ ...adminForm, gender: e.target.value })}
               options={[
                 { value: 'Male', label: 'Male' },
                 { value: 'Female', label: 'Female' },
@@ -441,27 +429,16 @@ const Teachers = () => {
             />
             <FormField
               label="Address"
-              value={teacherForm.address}
-              onChange={(e) => setTeacherForm({ ...teacherForm, address: e.target.value })}
-            />
-            <FormField
-              label="Subjects"
-              type="select"
-              value={teacherForm.subjectIds}
-              onChange={(e) => {
-                const selectedOptions = Array.from(e.target.selectedOptions).map(option => option.value);
-                setTeacherForm({ ...teacherForm, subjectIds: selectedOptions });
-              }}
-              options={subjects.map(subject => ({ value: subject.id, label: subject.name }))}
-              multiple
+              value={adminForm.address}
+              onChange={(e) => setAdminForm({ ...adminForm, address: e.target.value })}
             />
             <div className="flex justify-end gap-3 mt-6">
               <button
                 type="button"
                 onClick={() => {
-                  setShowTeacherModal(false);
-                  setEditingTeacher(null);
-                  setTeacherForm({ firstName: '', lastName: '', email: '', phoneNumber: '', dateOfBirth: '', gender: '', address: '', subjectIds: [] });
+                  setShowAdminModal(false);
+                  setEditingAdmin(null);
+                  setAdminForm({ firstName: '', lastName: '', email: '', phoneNumber: '', dateOfBirth: '', gender: '', address: ''});
                 }}
                 className="px-3 sm:px-4 py-2 text-gray-600 hover:text-gray-800 rounded-sm"
               >
@@ -492,4 +469,4 @@ const Teachers = () => {
   );
 };
 
-export default withAuth(Teachers, ['admin']);
+export default withAuth(Admins, ['admin']);

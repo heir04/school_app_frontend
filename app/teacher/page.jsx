@@ -12,7 +12,9 @@ import {
   BarChart3,
   Eye,
   FileText,
-  AlertTriangle
+  AlertTriangle,
+  Menu,
+  X
 } from 'lucide-react';
 import { withAuth } from '../contexts/AuthContext';
 
@@ -24,6 +26,7 @@ const TeacherDashboard = () => {
   const [selectedLevel, setSelectedLevel] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // State for teacher-specific data
   const [stats, setStats] = useState({
@@ -132,14 +135,14 @@ const TeacherDashboard = () => {
   });
 
   const StatCard = ({ title, value, icon: Icon, color }) => (
-    <div className="bg-white rounded-xl shadow-lg p-6 border-l-4" style={{ borderLeftColor: color }}>
+    <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border-l-4" style={{ borderLeftColor: color }}>
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-gray-600 text-sm font-medium">{title}</p>
-          <p className="text-3xl font-bold text-gray-900">{value}</p>
+          <p className="text-gray-600 text-xs sm:text-sm font-medium">{title}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-gray-900">{value}</p>
         </div>
-        <div className="p-3 rounded-full" style={{ backgroundColor: `${color}20` }}>
-          <Icon className="w-8 h-8" style={{ color }} />
+        <div className="p-2 sm:p-3 rounded-full" style={{ backgroundColor: `${color}20` }}>
+          <Icon className="w-6 h-6 sm:w-8 sm:h-8" style={{ color }} />
         </div>
       </div>
     </div>
@@ -148,14 +151,14 @@ const TeacherDashboard = () => {
   const TabButton = ({ id, label, icon: Icon, isActive, onClick }) => (
     <button
       onClick={() => onClick(id)}
-      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+      className={`flex items-center gap-3 px-3 sm:px-4 py-3 rounded-lg transition-all duration-200 w-full ${
         isActive 
           ? 'bg-blue-600 text-white shadow-lg' 
           : 'text-gray-600 hover:bg-gray-100'
       }`}
     >
-      <Icon className="w-5 h-5" />
-      <span className="font-medium">{label}</span>
+      <Icon className="w-5 h-5 flex-shrink-0" />
+      <span className="font-medium text-sm sm:text-base">{label}</span>
     </button>
   );
 
@@ -170,10 +173,10 @@ const TeacherDashboard = () => {
       <button
         onClick={onClick}
         disabled={disabled}
-        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]}`}
+        className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} w-full sm:w-auto`}
       >
         <Icon className="w-4 h-4" />
-        {label}
+        <span className="text-sm sm:text-base">{label}</span>
       </button>
     );
   };
@@ -181,21 +184,21 @@ const TeacherDashboard = () => {
   const DataTable = ({ data, columns, actions }) => (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full min-w-[600px]">
           <thead className="bg-gray-50">
             <tr>
               {columns.map((column, index) => (
-                <th key={index} className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th key={index} className="px-3 sm:px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {column.header}
                 </th>
               ))}
-              {actions && <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>}
+              {actions && <th className="px-3 sm:px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length + (actions ? 1 : 0)} className="px-6 py-8 text-center text-gray-500">
+                <td colSpan={columns.length + (actions ? 1 : 0)} className="px-3 sm:px-6 py-8 text-center text-gray-500">
                   No data available
                 </td>
               </tr>
@@ -203,12 +206,12 @@ const TeacherDashboard = () => {
               data.map((row, rowIndex) => (
                 <tr key={rowIndex} className="hover:bg-gray-50">
                   {columns.map((column, colIndex) => (
-                    <td key={colIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td key={colIndex} className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {column.render ? column.render(row) : row[column.key]}
                     </td>
                   ))}
                   {actions && (
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex gap-2 justify-end">
                         {actions.map((action, actionIndex) => (
                           <button
@@ -254,28 +257,28 @@ const TeacherDashboard = () => {
     <div className="space-y-8">
       {error && <ErrorAlert message={error} onClose={() => setError('')} />}
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <StatCard title="Total Classes" value={stats.totalLevels} icon={School} color="#3B82F6" />
         <StatCard title="Total Students" value={stats.totalStudents} icon={Users} color="#10B981" />
         <StatCard title="Subjects Taught" value={stats.totalSubjects} icon={BookOpen} color="#F59E0B" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
+        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-blue-600" />
             Teaching Status
           </h3>
           <div className="space-y-3">
             <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-green-500 rounded-full flex-shrink-0"></div>
               <div>
-                <p className="text-sm font-medium">Classess: Active</p>
-                <p className="text-xs text-gray-500">All Classess assigned</p>
+                <p className="text-sm font-medium">Classes: Active</p>
+                <p className="text-xs text-gray-500">All Classes assigned</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-blue-500 rounded-full flex-shrink-0"></div>
               <div>
                 <p className="text-sm font-medium">Assignments: Up to date</p>
                 <p className="text-xs text-gray-500">No pending grading</p>
@@ -284,12 +287,12 @@ const TeacherDashboard = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <Calendar className="w-5 h-5 text-green-600" />
             Quick Actions
           </h3>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <ActionButton 
               icon={Users} 
               label="View Students" 
@@ -303,7 +306,7 @@ const TeacherDashboard = () => {
               variant="success" 
               disabled={isLoading}
             />
-            <Link href="/result">
+            <Link href="/result" className="sm:col-span-2">
             <ActionButton 
               icon={FileText}
               label="Result Dashboard" 
@@ -328,7 +331,7 @@ const TeacherDashboard = () => {
         {error && <ErrorAlert message={error} onClose={() => setError('')} />}
         
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">Classes Management</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Classes Management</h2>
           <ActionButton 
             icon={Download} 
             label="Export" 
@@ -369,27 +372,9 @@ const TeacherDashboard = () => {
       <div className="space-y-6">
         {error && <ErrorAlert message={error} onClose={() => setError('')} />}
         
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">Students Management</h2>
-          <div className="flex items-center gap-2">
-            <Search className="w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search students..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <select
-              value={selectedLevel}
-              onChange={(e) => setSelectedLevel(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">All Classes</option>
-              {levels.map(level => (
-                <option key={level.id} value={level.levelName}>{level.levelName}</option>
-              ))}
-            </select>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Students Management</h2>
             <ActionButton 
               icon={Download} 
               label="Export" 
@@ -397,6 +382,29 @@ const TeacherDashboard = () => {
               variant="secondary" 
               disabled={isLoading}
             />
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1 relative">
+              <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search students..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <select
+              value={selectedLevel}
+              onChange={(e) => setSelectedLevel(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent min-w-[140px]"
+            >
+              <option value="">All Classes</option>
+              {levels.map(level => (
+                <option key={level.id} value={level.levelName}>{level.levelName}</option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -421,53 +429,94 @@ const TeacherDashboard = () => {
   };
 
   return (
-    
-      <div className="min-h-screen bg-gray-50">
-        <div className="flex">
-          {/* Sidebar */}
-          <div className="w-64 bg-white shadow-lg min-h-screen">
-            <div className="p-6">
-              <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <School className="w-8 h-8 text-blue-600" />
-                Teacher Dashboard
+    <div className="min-h-screen bg-gray-50">
+      {/* Mobile sidebar overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+      
+      <div className="flex">
+        {/* Sidebar */}
+        <div className={`
+          fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}>
+          <div className="p-4 lg:p-6 border-b lg:border-b-0">
+            <div className="flex items-center justify-between">
+              <h1 className="text-lg lg:text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <School className="w-6 h-6 lg:w-8 lg:h-8 text-blue-600" />
+                <span className="hidden sm:block">Teacher Dashboard</span>
               </h1>
+              <button
+                onClick={() => setIsSidebarOpen(false)}
+                className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
-            
-            <nav className="px-4 pb-4">
-              <div className="space-y-2">
-                <TabButton
-                  id="overview"
-                  label="Overview"
-                  icon={BarChart3}
-                  isActive={activeTab === 'overview'}
-                  onClick={setActiveTab}
-                />
-                <TabButton
-                  id="levels"
-                  label="Classes"
-                  icon={BookOpen}
-                  isActive={activeTab === 'levels'}
-                  onClick={setActiveTab}
-                />
-                <TabButton
-                  id="students"
-                  label="Students"
-                  icon={Users}
-                  isActive={activeTab === 'students'}
-                  onClick={setActiveTab}
-                />
-              </div>
-            </nav>
           </div>
-         
+          
+          <nav className="px-4 pb-4">
+            <div className="space-y-2">
+              <TabButton
+                id="overview"
+                label="Overview"
+                icon={BarChart3}
+                isActive={activeTab === 'overview'}
+                onClick={(tab) => {
+                  setActiveTab(tab);
+                  setIsSidebarOpen(false);
+                }}
+              />
+              <TabButton
+                id="levels"
+                label="Classes"
+                icon={BookOpen}
+                isActive={activeTab === 'levels'}
+                onClick={(tab) => {
+                  setActiveTab(tab);
+                  setIsSidebarOpen(false);
+                }}
+              />
+              <TabButton
+                id="students"
+                label="Students"
+                icon={Users}
+                isActive={activeTab === 'students'}
+                onClick={(tab) => {
+                  setActiveTab(tab);
+                  setIsSidebarOpen(false);
+                }}
+              />
+            </div>
+          </nav>
+        </div>
 
-          {/* Main Content */}
-          <div className="flex-1 p-8">
+        {/* Main Content */}
+        <div className="flex-1 lg:ml-0">
+          {/* Mobile header */}
+          <div className="lg:hidden bg-white shadow-sm border-b p-4">
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="p-2 rounded-lg hover:bg-gray-100"
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+              <h1 className="text-lg font-semibold text-gray-900">Teacher Dashboard</h1>
+              <div className="w-10" /> {/* Spacer for centering */}
+            </div>
+          </div>
+          
+          <div className="p-4 lg:p-8">
             {renderContent()}
           </div>
         </div>
       </div>
-       
+    </div>
   );
 };
 

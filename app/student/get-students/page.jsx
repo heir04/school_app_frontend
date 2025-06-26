@@ -7,7 +7,7 @@ import {
   Download,
   Edit,
   Trash2,
-  Eye,
+  ArrowLeft,
   AlertTriangle,
   X,
   Save,
@@ -383,13 +383,10 @@ const Students = () => {
               <option key={level.id} value={level.levelName}>{level.levelName}</option>
             ))}
           </select>
-          <ActionButton 
-            icon={Download} 
-            label="Export" 
-            onClick={() => console.log('Export')} 
-            variant="secondary" 
-            disabled={isLoading}
-          />
+          <Link href="/admin" className="flex items-center gap-2 text-gray-600 hover:text-gray-800">
+            <ArrowLeft className="w-4 h-4" />
+            Back to Admin
+          </Link>
         </div>
         {isLoading ? (
           <div className="flex justify-center py-8">

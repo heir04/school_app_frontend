@@ -60,7 +60,7 @@ const CheckResults = () => {
     try {
       const response = await apiCall('/Result/CheckResult');
       
-      if (response.status && response.data) {
+      if (response.status) {
         setResult(response.data);
       } else {
         setError(response.message || 'No results found');

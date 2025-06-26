@@ -19,3 +19,27 @@
     color: white;
     font-weight: bold;
 }
+
+@media (orientation: landscape) {
+  .navbar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .navList {
+    flex-direction: row;
+  }
+}
+
+@media (orientation: portrait) {
+  .navbar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .navList {
+    flex-direction: column;
+  }
+}

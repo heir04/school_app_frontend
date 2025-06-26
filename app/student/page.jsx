@@ -18,7 +18,9 @@ import {
   Mail,
   Phone,
   MapPin,
-  Edit
+  Edit,
+  Menu,
+  X
 } from 'lucide-react';
 import { withAuth } from '../contexts/AuthContext';
 
@@ -29,6 +31,7 @@ const StudentDashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentSessionTerm, setCurrentSessionTerm] = useState(null);
   const [error, setError] = useState('');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // New state for sidebar toggle
   const router = useRouter();
 
   // State for student data
@@ -76,43 +79,40 @@ const StudentDashboard = () => {
   };
 
   useEffect(() => {
-      const fetchData = async () => {
-        setIsLoading(true);
-        setError('');
-        try {
-          const [currentSessionTermRes] = await Promise.all([
-            apiCall('/Session/GetCurrentSessionAndTermName')
-          ]);
-  
-          if (currentSessionTermRes.status && currentSessionTermRes.data) {
-            setCurrentSessionTerm(currentSessionTermRes.data);
-          }
-        } catch (error) {
-          setError(`Failed to fetch data: ${error.message}`);
-        } finally {
-          setIsLoading(false);
+    const fetchData = async () => {
+      setIsLoading(true);
+      setError('');
+      try {
+        const [currentSessionTermRes] = await Promise.all([
+          apiCall('/Session/GetCurrentSessionAndTermName')
+        ]);
+
+        if (currentSessionTermRes.status && currentSessionTermRes.data) {
+          setCurrentSessionTerm(currentSessionTermRes.data);
         }
-      };
-  
-      fetchData();
-    }, []);
+      } catch (error) {
+        setError(`Failed to fetch data: ${error.message}`);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const fetchStudentData = async () => {
     setIsLoading(true);
     setError('');
     
     try {
-      // Get current student profile
       const profileRes = await apiCall('/Student/GetProfile');
       
       if (profileRes.status && profileRes.data) {
         setStudentProfile(profileRes.data);
         
-        // If we have the student's level, get classmates
         if (profileRes.data.levelId) {
           const classmatesRes = await apiCall(`/Student/GetAll/${profileRes.data.levelId}`);
           if (classmatesRes.status && classmatesRes.data) {
-            // Filter out the current student from classmates
             const filteredClassmates = classmatesRes.data.filter(
               student => student.id !== profileRes.data.id
             );
@@ -120,7 +120,6 @@ const StudentDashboard = () => {
           }
         }
       }
-
     } catch (error) {
       setError(error.message);
       console.error('Error fetching student data:', error);
@@ -129,21 +128,19 @@ const StudentDashboard = () => {
     }
   };
 
-  // Initial data load
   useEffect(() => {
     fetchStudentData();
   }, []);
 
-  const StatCard = ({ title, value, icon: Icon, color, description }) => (
-    <div className="bg-white rounded-xl shadow-lg p-6 border-l-4" style={{ borderLeftColor: color }}>
+  const StatCard = ({ title, value, icon: Icon, color }) => (
+    <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border-l-4" style={{ borderLeftColor: color }}>
       <div className="flex items-center justify-between">
         <div>
           <p className="text-gray-600 text-sm font-medium">{title}</p>
-          <p className="text-3xl font-bold text-gray-900">{value}</p>
-          {description && <p className="text-sm text-gray-500 mt-1">{description}</p>}
+          <p className="text-2xl sm:text-3xl font-bold text-gray-900">{value}</p>
         </div>
-        <div className="p-3 rounded-full" style={{ backgroundColor: `${color}20` }}>
-          <Icon className="w-8 h-8" style={{ color }} />
+        <div className="p-2 sm:p-3 rounded-full" style={{ backgroundColor: `${color}20` }}>
+          <Icon className="w-6 h-6 sm:w-8 sm:h-8" style={{ color }} />
         </div>
       </div>
     </div>
@@ -151,35 +148,41 @@ const StudentDashboard = () => {
 
   const TabButton = ({ id, label, icon: Icon, isActive, onClick }) => (
     <button
-      onClick={() => onClick(id)}
-      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 w-full ${
+      onClick={() => {
+        onClick(id);
+        setIsSidebarOpen(false); // Close sidebar on mobile after click
+      }}
+      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 w-full text-sm sm:text-base ${
         isActive 
           ? 'bg-blue-600 text-white shadow-lg' 
           : 'text-gray-600 hover:bg-gray-100'
       }`}
     >
-      <Icon className="w-5 h-5" />
+      <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
       <span className="font-medium">{label}</span>
     </button>
   );
 
   const ActionCard = ({ title, description, icon: Icon, onClick, color }) => (
     <div 
-      onClick={onClick}
-      className="bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl transition-all duration-200 border-l-4"
+      onClick={() => {
+        onClick();
+        setIsSidebarOpen(false); // Close sidebar on mobile after click
+      }}
+      className="bg-white rounded-xl shadow-lg p-4 sm:p-6 cursor-pointer hover:shadow-xl transition-all duration-200 border-l-4"
       style={{ borderLeftColor: color }}
     >
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="p-3 rounded-full" style={{ backgroundColor: `${color}20` }}>
-            <Icon className="w-6 h-6" style={{ color }} />
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="p-2 sm:p-3 rounded-full" style={{ backgroundColor: `${color}20` }}>
+            <Icon className="w-5 h-5 sm:w-6 sm:h-6" style={{ color }} />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">{title}</h3>
-            <p className="text-sm text-gray-600">{description}</p>
+            <h3 className="font-semibold text-gray-900 text-sm sm:text-base">{title}</h3>
+            <p className="text-xs sm:text-sm text-gray-600 truncate">{description}</p>
           </div>
         </div>
-        <ChevronRight className="w-5 h-5 text-gray-400" />
+        <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
       </div>
     </div>
   );
@@ -187,13 +190,13 @@ const StudentDashboard = () => {
   const ErrorAlert = ({ message, onClose }) => (
     <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
       <div className="flex items-start">
-        <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3" />
+        <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 mt-0.5 mr-2 sm:mr-3" />
         <div className="flex-1">
-          <p className="text-red-800">{message}</p>
+          <p className="text-red-800 text-sm sm:text-base">{message}</p>
         </div>
         <button
           onClick={onClose}
-          className="text-red-600 hover:text-red-800"
+          className="text-red-600 hover:text-red-800 text-lg sm:text-xl"
         >
           ×
         </button>
@@ -202,32 +205,30 @@ const StudentDashboard = () => {
   );
 
   const renderOverview = () => (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {error && <ErrorAlert message={error} onClose={() => setError('')} />}
       
-      {/* Welcome Section */}
       {studentProfile && (
-        <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-xl p-8 text-white">
-          <div className="flex items-center justify-between">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-xl p-6 sm:p-8 text-white">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold mb-2">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">
                 Welcome back, {studentProfile.firstName}!
               </h1>
-              <p className="text-blue-100">
+              <p className="text-blue-100 text-sm sm:text-base">
                 Class: {studentProfile.levelName} • Student ID: {studentProfile.studentId}
               </p>
             </div>
-            <div className="hidden md:block">
-              <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center">
-                <User className="w-10 h-10 text-white" />
+            <div className="hidden sm:block">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 rounded-full flex items-center justify-center">
+                <User className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <StatCard 
           title="Current Class" 
           value={studentProfile?.levelName || 'N/A'} 
@@ -251,10 +252,9 @@ const StudentDashboard = () => {
         )}
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900">Quick Actions</h3>
           <ActionCard
             title="View Profile"
             description="Check and update your personal information"
@@ -269,7 +269,6 @@ const StudentDashboard = () => {
             color="#10B981"
             onClick={() => setActiveTab('classmates')}
           />
-      
           <ActionCard 
             title="View Results"
             description="Check your academic performance"
@@ -279,22 +278,21 @@ const StudentDashboard = () => {
           />
         </div>
 
-        {/* Recent Activity */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Clock className="w-5 h-5 text-blue-600" />
+        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
             Recent Activity
           </h3>
           <div className="space-y-3">
             <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-              <Bell className="w-5 h-5 text-blue-500" />
+              <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
               <div>
                 <p className="text-sm font-medium">New Announcement</p>
                 <p className="text-xs text-gray-500">New Term Begins</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg">
-              <Clock className="w-5 h-5 text-yellow-500" />
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
               <div>
                 <p className="text-sm font-medium">Upcoming Exam</p>
                 <p className="text-xs text-gray-500">Science - Next week</p>
@@ -311,7 +309,7 @@ const StudentDashboard = () => {
       {error && <ErrorAlert message={error} onClose={() => setError('')} />}
       
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">My Profile</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">My Profile</h2>
         <button 
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           onClick={() => console.log('Edit profile')}
@@ -327,50 +325,50 @@ const StudentDashboard = () => {
         </div>
       ) : studentProfile ? (
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-8">
-            <div className="flex items-center gap-6">
-              <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center">
-                <User className="w-12 h-12 text-white" />
+          <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-6 sm:p-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/20 rounded-full flex items-center justify-center">
+                <User className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
               </div>
               <div className="text-white">
-                <h1 className="text-3xl font-bold">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">
                   {studentProfile.firstName} {studentProfile.lastName}
                 </h1>
-                <p className="text-blue-100 text-lg">Student ID: {studentProfile.studentId}</p>
-                <p className="text-blue-100">Class: {studentProfile.levelName}</p>
+                <p className="text-blue-100 text-sm sm:text-lg">Student ID: {studentProfile.studentId}</p>
+                <p className="text-blue-100 text-sm sm:text-base">Class: {studentProfile.levelName}</p>
               </div>
             </div>
           </div>
           
-          <div className="p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="p-6 sm:p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Personal Information</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 border-b pb-2">Personal Information</h3>
                 
                 <div className="flex items-center gap-3">
-                  <Mail className="w-5 h-5 text-gray-400" />
+                  <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                   <div>
-                    <p className="text-sm text-gray-500">Email</p>
-                    <p className="font-medium">{studentProfile.email}</p>
+                    <p className="text-xs sm:text-sm text-gray-500">Email</p>
+                    <p className="font-medium text-sm sm:text-base truncate">{studentProfile.email}</p>
                   </div>
                 </div>
                 
                 {studentProfile.phoneNumber && (
                   <div className="flex items-center gap-3">
-                    <Phone className="w-5 h-5 text-gray-400" />
+                    <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                     <div>
-                      <p className="text-sm text-gray-500">Phone Number</p>
-                      <p className="font-medium">{studentProfile.phoneNumber}</p>
+                      <p className="text-xs sm:text-sm text-gray-500">Phone Number</p>
+                      <p className="font-medium text-sm sm:text-base">{studentProfile.phoneNumber}</p>
                     </div>
                   </div>
                 )}
                 
                 {studentProfile.dateOfBirth && (
                   <div className="flex items-center gap-3">
-                    <Calendar className="w-5 h-5 text-gray-400" />
+                    <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                     <div>
-                      <p className="text-sm text-gray-500">Date of Birth</p>
-                      <p className="font-medium">
+                      <p className="text-xs sm:text-sm text-gray-500">Date of Birth</p>
+                      <p className="font-medium text-sm sm:text-base">
                         {new Date(studentProfile.dateOfBirth).toLocaleDateString()}
                       </p>
                     </div>
@@ -379,31 +377,31 @@ const StudentDashboard = () => {
                 
                 {studentProfile.gender && (
                   <div className="flex items-center gap-3">
-                    <User className="w-5 h-5 text-gray-400" />
+                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                     <div>
-                      <p className="text-sm text-gray-500">Gender</p>
-                      <p className="font-medium">{studentProfile.gender}</p>
+                      <p className="text-xs sm:text-sm text-gray-500">Gender</p>
+                      <p className="font-medium text-sm sm:text-base">{studentProfile.gender}</p>
                     </div>
                   </div>
                 )}
               </div>
               
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Academic Information</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 border-b pb-2">Academic Information</h3>
                 
                 <div className="flex items-center gap-3">
-                  <School className="w-5 h-5 text-gray-400" />
+                  <School className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                   <div>
-                    <p className="text-sm text-gray-500">Current Class</p>
-                    <p className="font-medium">{studentProfile.levelName}</p>
+                    <p className="text-xs sm:text-sm text-gray-500">Current Class</p>
+                    <p className="font-medium text-sm sm:text-base">{studentProfile.levelName}</p>
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-3">
-                  <Calendar className="w-5 h-5 text-gray-400" />
+                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                   <div>
-                    <p className="text-sm text-gray-500">Enrolled Since</p>
-                    <p className="font-medium">
+                    <p className="text-xs sm:text-sm text-gray-500">Enrolled Since</p>
+                    <p className="font-medium text-sm sm:text-base">
                       {new Date(studentProfile.createdOn).toLocaleDateString()}
                     </p>
                   </div>
@@ -411,10 +409,10 @@ const StudentDashboard = () => {
                 
                 {studentProfile.address && (
                   <div className="flex items-center gap-3">
-                    <MapPin className="w-5 h-5 text-gray-400" />
+                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                     <div>
-                      <p className="text-sm text-gray-500">Address</p>
-                      <p className="font-medium">{studentProfile.address}</p>
+                      <p className="text-xs sm:text-sm text-gray-500">Address</p>
+                      <p className="font-medium text-sm sm:text-base truncate">{studentProfile.address}</p>
                     </div>
                   </div>
                 )}
@@ -423,7 +421,7 @@ const StudentDashboard = () => {
           </div>
         </div>
       ) : (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-gray-500 text-sm sm:text-base">
           No profile information available
         </div>
       )}
@@ -435,8 +433,8 @@ const StudentDashboard = () => {
       {error && <ErrorAlert message={error} onClose={() => setError('')} />}
       
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">My Classmates</h2>
-        <div className="text-sm text-gray-500">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">My Classmates</h2>
+        <div className="text-xs sm:text-sm text-gray-500">
           {studentProfile?.levelName} • {classmates.length} students
         </div>
       </div>
@@ -446,28 +444,28 @@ const StudentDashboard = () => {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
       ) : classmates.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {classmates.map((classmate) => (
-            <div key={classmate.id} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-                  <span className="text-white font-semibold text-lg">
+            <div key={classmate.id} className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition-shadow">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                  <span className="text-white font-semibold text-base sm:text-lg">
                     {classmate.firstName?.charAt(0)}{classmate.lastName?.charAt(0)}
                   </span>
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900">
+                  <h3 className="font-semibold text-gray-900 text-sm sm:text-base">
                     {classmate.firstName} {classmate.lastName}
                   </h3>
-                  <p className="text-sm text-gray-500">ID: {classmate.studentId}</p>
-                  <p className="text-sm text-gray-500">{classmate.email}</p>
+                  <p className="text-xs sm:text-sm text-gray-500">ID: {classmate.studentId}</p>
+                  <p className="text-xs sm:text-sm text-gray-500 truncate">{classmate.email}</p>
                 </div>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-gray-500 text-sm sm:text-base">
           No classmates found
         </div>
       )}
@@ -485,45 +483,66 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+      <div className="flex flex-col sm:flex-row">
+        {/* Mobile Menu Button */}
+        {/* <div className="sm:hidden p-4">
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="p-2 bg-blue-600 text-white rounded-lg"
+          >
+            {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div> */}
+
         {/* Sidebar */}
-        <div className="w-64 bg-white shadow-lg min-h-screen">
-          <div className="p-6">
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <GraduationCap className="w-8 h-8 text-blue-600" />
-              Student Portal
-            </h1>
-          </div>
-          
-          <nav className="px-4 pb-4">
-            <div className="space-y-2">
-              <TabButton
-                id="overview"
-                label="Dashboard"
-                icon={BookOpen}
-                isActive={activeTab === 'overview'}
-                onClick={setActiveTab}
-              />
-              <TabButton
-                id="profile"
-                label="My Profile"
-                icon={User}
-                isActive={activeTab === 'profile'}
-                onClick={setActiveTab}
-              />
-              <TabButton
-                id="classmates"
-                label="Classmates"
-                icon={User}
-                isActive={activeTab === 'classmates'}
-                onClick={setActiveTab}
-              />
+        <div className={`
+          fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}>
+          <div className={`fixed sm:static inset-y-0 left-0 w-64 bg-white shadow-lg transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} sm:translate-x-0 transition-transform duration-300 z-50`}>
+            <div className="p-4 sm:p-6">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <GraduationCap className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
+                Student Portal
+              </h1>
             </div>
-          </nav>
+      
+            <nav className="px-4 pb-4">
+              <div className="space-y-2">
+                <TabButton
+                  id="overview"
+                  label="Dashboard"
+                  icon={BookOpen}
+                  isActive={activeTab === 'overview'}
+                  onClick={setActiveTab}
+                />
+                <TabButton
+                  id="profile"
+                  label="My Profile"
+                  icon={User}
+                  isActive={activeTab === 'profile'}
+                  onClick={setActiveTab}
+                />
+                <TabButton
+                  id="classmates"
+                  label="Classmates"
+                  icon={User}
+                  isActive={activeTab === 'classmates'}
+                  onClick={setActiveTab}
+                />
+              </div>
+            </nav>
+          </div>
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 p-8">
+        <div className="flex-1 p-4 sm:p-8">
+          <button
+            className="lg:hidden mb-4 p-2 bg-blue-600 text-white rounded-lg"
+            onClick={() => setIsSidebarOpen(true)}
+          >
+            Menu
+          </button>
           {renderContent()}
         </div>
       </div>

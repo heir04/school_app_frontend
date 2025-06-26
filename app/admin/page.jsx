@@ -249,10 +249,16 @@ const AdminDashboard = () => {
   // Create headers with auth token
   const getAuthHeaders = (isJson = true) => {
     const token = getAuthToken();
-    return {
-      ...(isJson && { 'Content-Type': 'application/json' }),
+    const headers = {
       'Authorization': `Bearer ${token}`
     };
+    
+    // Only set Content-Type for JSON, not for FormData
+    if (isJson) {
+      headers['Content-Type'] = 'application/json';
+    }
+    
+    return headers;
   };
 
   // API call helper
@@ -295,23 +301,23 @@ const AdminDashboard = () => {
         apiCall('/Session/GetAll'),
         apiCall('/Session/GetAllSessionTerm'),
         apiCall('/Session/GetCurrentSessionAndTermName'),
-        apiCall('/Student/GetAll'),
-        apiCall('/Teacher/GetAll')
+        apiCall('/Student/Count'),
+        apiCall('/Teacher/Count')
       ]);
 
       if (subjectsRes.status && subjectsRes.data) {
         setSubjects(subjectsRes.data);
-        setStats(prev => ({ ...prev, totalSubjects: subjectsRes.data.length }));
+        setStats(prev => ({ ...prev, totalSubjects: subjectsRes.data.length || 0 }));
       }
       if (levelsRes.status && levelsRes.data) {
         setLevels(levelsRes.data);
-        setStats(prev => ({ ...prev, totalLevels: levelsRes.data.length }));
+        setStats(prev => ({ ...prev, totalLevels: levelsRes.data.length || 0}));
       }
       if (sessionsRes.status && sessionsRes.data) setSessions(sessionsRes.data);
       if (termsRes.status && termsRes.data) setTerms(termsRes.data);
       if (currentSessionTermRes.status && currentSessionTermRes.data) setCurrentSessionTerm(currentSessionTermRes.data);
-      if (studentsRes.status && studentsRes.data) setStats(prev => ({ ...prev, totalStudents: studentsRes.data.length }));
-      if (teachersRes.status && teachersRes.data) setStats(prev => ({ ...prev, totalTeachers: teachersRes.data.length }));
+      if (studentsRes.status && studentsRes.data) setStats(prev => ({ ...prev, totalStudents: studentsRes.data.count }));
+      if (teachersRes.status && teachersRes.data) setStats(prev => ({ ...prev, totalTeachers: teachersRes.data.count }));
     } catch (error) {
       setError(error.message);
       console.error('Error fetching data:', error);
@@ -398,7 +404,8 @@ const AdminDashboard = () => {
     await apiCall('/Level/Create', {
       method: 'POST',
       headers: getAuthHeaders(false),
-      body: formData
+      body: formData,
+      isJson: false
     });
   };
 
@@ -444,7 +451,8 @@ const AdminDashboard = () => {
     await apiCall('/Subject/Create', {
       method: 'POST',
       headers: getAuthHeaders(false),
-      body: formData
+      body: formData,
+      isJson: false
     });
   };
 
@@ -491,7 +499,8 @@ const AdminDashboard = () => {
     await apiCall('/Session/Register', {
       method: 'POST',
       headers: getAuthHeaders(false),
-      body: formData
+      body: formData,
+      isJson: false
     });
   };
 
@@ -735,6 +744,9 @@ const AdminDashboard = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Link href="/student/get-students">
               <ActionButton icon={Users} label="Manage Students" disabled={isLoading} />
+            </Link>
+            <Link href="/admin/get-admins">
+              <ActionButton icon={Users} label="Manage Admins" disabled={isLoading} />
             </Link>
             <Link href="/teacher/get-teachers">
               <ActionButton icon={GraduationCap} label="Manage Teachers" variant="success" disabled={isLoading} />

@@ -12,7 +12,7 @@ import {
   ArrowLeft,
   CheckCircle 
 } from 'lucide-react';
-import { withAuth } from '../../contexts/AuthContext';
+import { useAuth, withAuth } from '../../contexts/AuthContext';
 
 const API_BASE_URL = 'http://localhost:5130/api';
 
@@ -191,10 +191,13 @@ const UpdatePassword = () => {
             <Lock className="w-6 h-6 text-blue-600" />
             Update Password
           </h1>
-          <Link href="/admin" className="flex items-center gap-2 text-gray-600 hover:text-gray-800">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Admin
-          </Link>
+          <button
+            onClick={() => router.back()}
+            className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Go Back
+          </button>
         </div>
 
         {error && <ErrorAlert message={error} />}
@@ -240,12 +243,12 @@ const UpdatePassword = () => {
             </div>
 
             <div className="flex justify-end gap-3">
-              <Link 
-                href="/admin" 
+              <button
+                onClick={() => router.back()}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800 rounded-lg border border-gray-300 hover:bg-gray-50"
               >
                 Cancel
-              </Link>
+              </button>
               <button
                 type="submit"
                 disabled={isLoading}
