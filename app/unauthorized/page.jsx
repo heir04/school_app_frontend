@@ -3,7 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { AlertTriangle, ArrowLeft } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext'; 
+import { withAuth, useAuth } from '../contexts/AuthContext'; 
 
 const UnauthorizedPage = () => {
   const router = useRouter();
