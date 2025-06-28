@@ -21,7 +21,7 @@ import {
   FileText,
   Clock
 } from 'lucide-react';
-import { withAuth } from '../contexts/AuthContext';
+import { withAuth, useAuth } from '../contexts/AuthContext';
 
 const API_BASE_URL = 'http://localhost:5130/api';
 
@@ -147,6 +147,7 @@ const DataTable = ({ data, columns, actions }) => (
 );
 
 const AdminDashboard = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLevel, setSelectedLevel] = useState('');
@@ -702,9 +703,11 @@ const AdminDashboard = () => {
             <Link href="/student/get-students">
               <ActionButton icon={Users} label="Manage Students" disabled={isLoading} />
             </Link>
-            <Link href="/admin/get-admins">
-              <ActionButton icon={Users} label="Manage Admins" disabled={isLoading} />
-            </Link>
+            {user?.role?.toLowerCase() === 'superadmin' && (
+              <Link href="/admin/get-admins">
+                <ActionButton icon={Users} label="Manage Admins" disabled={isLoading} />
+              </Link>
+            )}
             <Link href="/teacher/get-teachers">
               <ActionButton icon={GraduationCap} label="Manage Teachers" variant="success" disabled={isLoading} />
             </Link>

@@ -19,12 +19,13 @@ import {
   Menu,
   X
 } from 'lucide-react';
-import { withAuth } from '../contexts/AuthContext';
+import { withAuth, useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 
 const API_BASE_URL = 'http://localhost:5130/api';
 
 const ResultDashboard = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLevel, setSelectedLevel] = useState('');
@@ -367,20 +368,24 @@ const ResultDashboard = () => {
             Quick Actions
           </h3>
           <div className="space-y-3">
-            <ActionButton 
-              title="Create Bulk Results"
-              description="Upload multiple results at once"
-              icon={Plus} 
-              onClick={() => router.push('/result/create-bulk')}
-              color="#3B82F6"
-            />
-            <ActionButton 
-              title="Manage Remarks"
-              description="Add or update result remarks"
-              icon={MessageCircle} 
-              onClick={() => router.push('/result/manage-remarks')}
-              color="#F59E0B"
-            />
+            {user?.role?.toLowerCase() === 'teacher' && (
+              <ActionButton 
+                title="Create Bulk Results"
+                description="Upload multiple results at once"
+                icon={Plus} 
+                onClick={() => router.push('/result/create-bulk')}
+                color="#3B82F6"
+              />
+            )}
+            {(user?.role?.toLowerCase() === 'admin' || user?.role?.toLowerCase() === 'superadmin') && (
+              <ActionButton 
+                title="Manage Remarks"
+                description="Add or update result remarks"
+                icon={MessageCircle} 
+                onClick={() => router.push('/result/manage-remarks')}
+                color="#F59E0B"
+              />
+            )}
             <ActionButton 
               title="Export Results"
               description="Download results as CSV/PDF"
