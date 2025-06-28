@@ -698,4 +698,4 @@ const AdminResultsRemarksPage = () => {
   );
 };
 
-export default withAuth(AdminResultsRemarksPage, ['admin']);
+export default withAuth(AdminResultsRemarksPage, ['admin', 'superadmin']);

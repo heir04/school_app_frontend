@@ -84,37 +84,50 @@ const TeacherDashboard = () => {
     setIsLoading(true);
     setError('');
     
-    try {
-      const [levelsRes, studentsRes, subjectsRes] = await Promise.all([
-        apiCall('/Level/GetAll'), // Hypothetical endpoint
-        apiCall('/Student/GetAll'), // Hypothetical endpoint
-        apiCall('/Subject/GetSubjectsByTeacher') // Hypothetical endpoint
-      ]);
+    const errors = [];
 
-      // Set Levelss data
+    // Fetch levels data
+    try {
+      const levelsRes = await apiCall('/Level/GetAll');
       if (levelsRes.status && levelsRes.data) {
         setLevels(levelsRes.data);
-        setStats(prev => ({ ...prev, totalLevels: levelsRes.data.length }));
+        setStats(prev => ({ ...prev, totalLevels: levelsRes.data.length || 0 }));
       }
+    } catch (error) {
+      console.error('Error fetching levels:', error);
+      errors.push('Failed to load classes data');
+    }
 
-      // Set students data
+    // Fetch students data
+    try {
+      const studentsRes = await apiCall('/Student/GetAll');
       if (studentsRes.status && studentsRes.data) {
         setStudents(studentsRes.data);
         setStats(prev => ({ ...prev, totalStudents: studentsRes.data.length }));
       }
+    } catch (error) {
+      console.error('Error fetching students:', error);
+      errors.push('Failed to load students data');
+    }
 
-      // Set subjects data
+    // Fetch subjects data
+    try {
+      const subjectsRes = await apiCall('/Subject/GetSubjectsByTeacher');
       if (subjectsRes.status && subjectsRes.data) {
         setSubjects(subjectsRes.data);
         setStats(prev => ({ ...prev, totalSubjects: subjectsRes.data.length }));
       }
-
     } catch (error) {
-      setError(error.message);
-      console.error('Error fetching teacher data:', error);
-    } finally {
-      setIsLoading(false);
+      console.error('Error fetching subjects:', error);
+      errors.push('Failed to load subjects data');
     }
+
+    // Set error message if any endpoints failed
+    if (errors.length > 0) {
+      setError(errors.join(', '));
+    }
+
+    setIsLoading(false);
   };
 
   // Initial data load

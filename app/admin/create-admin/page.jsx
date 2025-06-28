@@ -234,4 +234,4 @@ const AdminCreate = () => {
   );
 };
 
-export default withAuth(AdminCreate, ['admin']);
+export default withAuth(AdminCreate, ['superadmin']);

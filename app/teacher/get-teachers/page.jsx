@@ -494,4 +494,4 @@ const Teachers = () => {
   );
 };
 
-export default withAuth(Teachers, ['admin']);
+export default withAuth(Teachers, ['admin', 'superadmin']);

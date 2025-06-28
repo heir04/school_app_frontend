@@ -7,9 +7,9 @@ import {
   LogOut, 
   ChevronDown,
   Shield,
-  Bell,
-  School
+  Bell
 } from 'lucide-react';
+import Image from 'next/image';
 
 const API_BASE_URL = 'http://localhost:5130/api';
 
@@ -155,7 +155,13 @@ const Navbar = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo/Brand */}
             <div className="flex items-center">
-              <School className="w-8 h-8 text-blue-600 mr-2" />
+              <Image 
+                src="/images/logo.jpg" 
+                alt="Fazl-I-Omar Academy Logo" 
+                width={32} 
+                height={32} 
+                className="mr-2 rounded"
+              />
               <span className="text-xl font-bold text-gray-900">Fazl-I-Omar Academy</span>
             </div>
 

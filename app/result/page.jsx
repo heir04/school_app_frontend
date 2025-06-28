@@ -550,4 +550,4 @@ const ResultDashboard = () => {
   );
 };
 
-export default withAuth(ResultDashboard, ['admin', 'teacher']);
+export default withAuth(ResultDashboard, ['admin', 'teacher', 'superadmin']);

@@ -392,4 +392,4 @@ const StudentCreate = () => {
   );
 };
 
-export default withAuth(StudentCreate, ['admin']);
+export default withAuth(StudentCreate, ['admin', 'superadmin']);

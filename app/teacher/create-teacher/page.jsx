@@ -402,4 +402,4 @@ const TeacherCreate = () => {
   );
 };
 
-export default withAuth(TeacherCreate, ['admin']);
+export default withAuth(TeacherCreate, ['admin', 'superadmin']);

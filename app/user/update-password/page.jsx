@@ -280,4 +280,4 @@ const UpdatePassword = () => {
   );
 };
 
-export default withAuth(UpdatePassword, ['admin', 'teacher', 'student']);
+export default withAuth(UpdatePassword, ['admin', 'teacher', 'student', 'superadmin']);

@@ -10,8 +10,6 @@ import {
   Edit,
   Trash2,
   Search,
-  Download,
-  UserPlus,
   Calendar,
   BarChart3,
   Eye,
@@ -63,43 +61,6 @@ const FormField = ({ label, type = 'text', value, onChange, options, multiple = 
     )}
   </div>
 );
-
-const ErrorAlert = ({ message, onClose }) => (
-  <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 sm:mb-6">
-    <div className="flex items-start">
-      <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 mt-0.5 mr-2 sm:mr-3" />
-      <div className="flex-1">
-        <p className="text-red-800 text-sm sm:text-base">{message}</p>
-      </div>
-      <button
-        onClick={onClose}
-        className="text-red-600 hover:text-red-800"
-      >
-        <X className="w-4 h-4 sm:w-5 sm:h-5" />
-      </button>
-    </div>
-  </div>
-);
-
-const ActionButton = ({ onClick, icon: Icon, label, variant = 'primary', disabled = false }) => {
-  const variants = {
-    primary: 'bg-blue-600 hover:bg-blue-700 text-white',
-    success: 'bg-green-600 hover:bg-green-700 text-white',
-    danger: 'bg-red-600 hover:bg-red-700 text-white',
-    secondary: 'bg-gray-600 hover:bg-gray-700 text-white'
-  };
-
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base ${variants[variant]}`}
-    >
-      <Icon className="w-4 h-4" />
-      {label}
-    </button>
-  );
-};
 
 const Modal = ({ show, onClose, title, children, size = 'md' }) => {
   if (!show) return null;
@@ -196,25 +157,21 @@ const AdminDashboard = () => {
   // Modal states
   const [showSubjectModal, setShowSubjectModal] = useState(false);
   const [showLevelModal, setShowLevelModal] = useState(false);
-  const [showStudentModal, setShowStudentModal] = useState(false);
-  const [showTeacherModal, setShowTeacherModal] = useState(false);
   const [showSessionModal, setShowSessionModal] = useState(false);
   const [showTermModal, setShowTermModal] = useState(false);
   const [editingLevel, setEditingLevel] = useState(null);
-  const [editingStudent, setEditingStudent] = useState(null);
-  const [editingTeacher, setEditingTeacher] = useState(null);
   const [editingSubject, setEditingSubject] = useState(null);
   const [editingSession, setEditingSession] = useState(null);
 
   // Form states
   const [levelForm, setLevelForm] = useState({
     levelName: '',
-    description: ''
+    category: ''
   });
 
   const [subjectForm, setSubjectForm] = useState({
     name: '',
-    description: ''
+    category: ''
   });
 
   const [sessionForm, setSessionForm] = useState({
@@ -372,7 +329,7 @@ const AdminDashboard = () => {
     setEditingLevel(level);
     setLevelForm({
       levelName: level.levelName,
-      description: level.description || ''
+      category: level.category || ''
     });
     setShowLevelModal(true);
   };
@@ -381,7 +338,7 @@ const AdminDashboard = () => {
     setEditingSubject(subject);
     setSubjectForm({
       name: subject.name,
-      description: subject.description || ''
+      category: subject.category || ''
     });
     setShowSubjectModal(true);
   };
@@ -399,7 +356,7 @@ const AdminDashboard = () => {
   const createLevel = async () => {
     const formData = new FormData();
     formData.append('levelName', levelForm.levelName);
-    formData.append('description', levelForm.description);
+    formData.append('category', levelForm.category);
 
     await apiCall('/Level/Create', {
       method: 'POST',
@@ -412,7 +369,7 @@ const AdminDashboard = () => {
   const updateLevel = async (id) => {
     const payload = {
       levelName: levelForm.levelName,
-      description: levelForm.description
+      category: levelForm.category
     };
 
     await apiCall(`/Level/Update/${id}`, {
@@ -435,7 +392,7 @@ const AdminDashboard = () => {
       await fetchAllData();
       setShowLevelModal(false);
       setEditingLevel(null);
-      setLevelForm({ levelName: '', description: '' });
+      setLevelForm({ levelName: '', category: '' });
     } catch (error) {
       setError(`Failed to ${editingLevel ? 'update' : 'create'} level: ${error.message}`);
     } finally {
@@ -446,7 +403,7 @@ const AdminDashboard = () => {
   const createSubject = async () => {
     const formData = new FormData();
     formData.append('name', subjectForm.name);
-    formData.append('description', subjectForm.description);
+    formData.append('category', subjectForm.category);
 
     await apiCall('/Subject/Create', {
       method: 'POST',
@@ -459,7 +416,7 @@ const AdminDashboard = () => {
   const updateSubject = async (id) => {
     const payload = {
       name: subjectForm.name,
-      description: subjectForm.description
+      category: subjectForm.category
     };
 
     await apiCall(`/Subject/Update/${id}`, {
@@ -482,7 +439,7 @@ const AdminDashboard = () => {
       await fetchAllData();
       setShowSubjectModal(false);
       setEditingSubject(null);
-      setSubjectForm({ name: '', description: '' });
+      setSubjectForm({ name: '', category: '' });
     } catch (error) {
       setError(`Failed to ${editingSubject ? 'update' : 'create'} subject: ${error.message}`);
     } finally {
@@ -766,7 +723,7 @@ const AdminDashboard = () => {
   const renderSubjects = () => {
     const subjectColumns = [
       { key: 'name', header: 'Subject Name' },
-      { key: 'description', header: 'Description' },
+      { key: 'category', header: 'Category' },
       { 
         key: 'dateCreated', 
         header: 'Created Date', 
@@ -807,7 +764,7 @@ const AdminDashboard = () => {
   const renderLevels = () => {
     const levelColumns = [
       { key: 'levelName', header: 'Level Name' },
-      { key: 'description', header: 'Description' },
+      { key: 'category', header: 'Category' },
       { 
         key: 'dateCreated', 
         header: 'Created Date', 
@@ -948,9 +905,15 @@ const AdminDashboard = () => {
           required
         />
         <FormField
-          label="Description"
-          value={levelForm.description}
-          onChange={(e) => setLevelForm({ ...levelForm, description: e.target.value })}
+          label="Category"
+          type="select"
+          value={levelForm.category}
+          onChange={(e) => setLevelForm({ ...levelForm, category: e.target.value })}
+          options={[
+            { value: 'Junior', label: 'Junior' },
+            { value: 'Senior', label: 'Senior' }
+          ]}
+          required
         />
         <div className="flex justify-end gap-3 mt-6">
           <button
@@ -958,7 +921,7 @@ const AdminDashboard = () => {
             onClick={() => {
               setShowLevelModal(false);
               setEditingLevel(null);
-              setLevelForm({ levelName: '', description: '' });
+              setLevelForm({ levelName: '', category: '' });
             }}
             className="px-3 sm:px-4 py-2 text-gray-600 hover:text-gray-800 rounded-sm"
           >
@@ -1005,9 +968,15 @@ const AdminDashboard = () => {
           required
         />
         <FormField
-          label="Description"
-          value={subjectForm.description}
-          onChange={(e) => setSubjectForm({ ...subjectForm, description: e.target.value })}
+          label="Category"
+          type="select"
+          value={subjectForm.category}
+          onChange={(e) => setSubjectForm({ ...subjectForm, category: e.target.value })}
+          options={[
+            { value: 'Junior', label: 'Junior' },
+            { value: 'Senior', label: 'Senior' }
+          ]}
+          required
         />
         <div className="flex justify-end gap-3 mt-6">
           <button
@@ -1015,7 +984,7 @@ const AdminDashboard = () => {
             onClick={() => {
               setShowSubjectModal(false);
               setEditingSubject(null);
-              setSubjectForm({ name: '', description: '' });
+              setSubjectForm({ name: '', category: '' });
             }}
             className="px-3 sm:px-4 py-2 text-gray-600 hover:text-gray-800 rounded-sm"
           >
@@ -1247,4 +1216,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default withAuth(AdminDashboard, ['admin']);
+export default withAuth(AdminDashboard, ['superadmin', 'admin']);

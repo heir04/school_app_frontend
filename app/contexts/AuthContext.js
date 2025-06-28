@@ -68,6 +68,8 @@ export const AuthProvider = ({ children }) => {
             case 'admin':
               router.push('/admin');
               break;
+            case 'superadmin':
+              router.push('/admin');
             case 'teacher':
               router.push('/teacher');
               break;

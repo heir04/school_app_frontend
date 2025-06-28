@@ -503,4 +503,4 @@ const Students = () => {
   );
 };
 
-export default withAuth(Students, ['admin']);
+export default withAuth(Students, ['admin', 'superadmin']);

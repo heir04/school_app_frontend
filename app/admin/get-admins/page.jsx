@@ -469,4 +469,4 @@ const Admins = () => {
   );
 };
 
-export default withAuth(Admins, ['admin']);
+export default withAuth(Admins, ['superadmin']);
