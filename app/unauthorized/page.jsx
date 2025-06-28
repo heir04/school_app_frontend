@@ -3,7 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { AlertTriangle, ArrowLeft } from 'lucide-react';
-import { withAuth, useAuth } from '../contexts/AuthContext'; 
+import { useAuth } from '../contexts/AuthContext'; 
 
 const UnauthorizedPage = () => {
   const router = useRouter();
@@ -21,31 +21,45 @@ const UnauthorizedPage = () => {
           You don't have permission to access this page. Please contact your administrator if you believe this is an error.
         </p>
         
-        {user?.role?.toLowerCase() === 'teacher' && (
-          <button
-            onClick={() => router.push('/teacher')}
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Go Back
-          </button>
+        {user && user.role && (
+          <>
+            {user.role.toLowerCase() === 'teacher' && (
+              <button
+                onClick={() => router.push('/teacher')}
+                className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Go Back
+              </button>
+            )}
+            {user.role.toLowerCase() === 'student' && (
+              <button
+                onClick={() => router.push('/student')}
+                className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Go Back
+              </button>
+            )}
+            {(user.role.toLowerCase() === 'admin' || user.role.toLowerCase() === 'superadmin') && (
+              <button
+                onClick={() => router.push('/admin')}
+                className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Go Back
+              </button>
+            )}
+          </>
         )}
-        {user?.role?.toLowerCase() === 'student' && (
+        
+        {!user && (
           <button
-            onClick={() => router.push('/student')}
+            onClick={() => router.push('/login')}
             className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            Go Back
-          </button>
-        )}
-        {user?.role?.toLowerCase() === 'admin' || user.role.toLowerCase() === 'superadmin' && (
-          <button
-            onClick={() => router.push('/admin')}
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Go Back
+            Go to Login
           </button>
         )}
       </div>
