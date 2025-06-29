@@ -25,7 +25,7 @@ const FormField = ({ label, type = 'text', value, onChange, options, required = 
         value={value}
         onChange={onChange}
         required={required}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 font-medium"
       >
         <option value="">Select {label}</option>
         {options?.map(option => (
@@ -57,7 +57,7 @@ const FormField = ({ label, type = 'text', value, onChange, options, required = 
         value={value}
         onChange={onChange}
         required={required}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 font-medium"
         placeholder={`Enter ${label.toLowerCase()}`}
       />
     )}

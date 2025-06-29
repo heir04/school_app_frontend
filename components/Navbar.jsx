@@ -53,6 +53,9 @@ const Navbar = () => {
         case 'admin':
           endpoint = '/Admin/GetProfile'; // Adjust based on your actual endpoint
           break;
+        case 'superadmin':
+          endpoint = '/Admin/GetProfile';
+          break;
         case 'teacher':
           endpoint = '/Teacher/GetProfile';
           break;
