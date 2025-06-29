@@ -19,7 +19,8 @@ import {
   Loader2,
   Plus,
   FileText,
-  Clock
+  Clock,
+  Menu
 } from 'lucide-react';
 import { withAuth, useAuth } from '../contexts/AuthContext';
 
@@ -550,14 +551,14 @@ const AdminDashboard = () => {
   const TabButton = ({ id, label, icon: Icon, isActive, onClick }) => (
     <button
       onClick={() => onClick(id)}
-      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 w-full text-left ${
+      className={`flex items-center gap-3 px-3 sm:px-4 py-3 rounded-lg transition-all duration-200 w-full ${
         isActive 
           ? 'bg-blue-600 text-white shadow-lg' 
           : 'text-gray-600 hover:bg-gray-100'
       }`}
     >
-      <Icon className="w-5 h-5" />
-      <span className="font-medium">{label}</span>
+      <Icon className="w-5 h-5 flex-shrink-0" />
+      <span className="font-medium text-sm sm:text-base">{label}</span>
     </button>
   );
 
@@ -1145,25 +1146,33 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="flex flex-col lg:flex-row">
+      {/* Mobile sidebar overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+      
+      <div className="flex">
         {/* Sidebar */}
         <div className={`
-          w-full lg:w-64 bg-white shadow-lg min-h-screen
-          fixed lg:static top-0 left-0 h-full z-50
-          transition-transform duration-300
+          fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}>
-          <div className="p-4 sm:p-6 flex items-center justify-between">
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <School className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
-              School Admin
-            </h1>
-            <button
-              className="lg:hidden text-gray-600"
-              onClick={() => setIsSidebarOpen(false)}
-            >
-              <X className="w-6 h-6" />
-            </button>
+          <div className="p-4 lg:p-6 border-b lg:border-b-0">
+            <div className="flex items-center justify-between">
+              <h1 className="text-lg lg:text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <School className="w-6 h-6 lg:w-8 lg:h-8 text-blue-600" />
+                <span className="hidden sm:block">School Admin</span>
+              </h1>
+              <button
+                onClick={() => setIsSidebarOpen(false)}
+                className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
           
           <nav className="px-4 pb-4">
@@ -1173,46 +1182,68 @@ const AdminDashboard = () => {
                 label="Overview"
                 icon={BarChart3}
                 isActive={activeTab === 'overview'}
-                onClick={setActiveTab}
+                onClick={(tab) => {
+                  setActiveTab(tab);
+                  setIsSidebarOpen(false);
+                }}
               />
               <TabButton
                 id="subjects"
                 label="Subjects"
                 icon={BookOpen}
                 isActive={activeTab === 'subjects'}
-                onClick={setActiveTab}
+                onClick={(tab) => {
+                  setActiveTab(tab);
+                  setIsSidebarOpen(false);
+                }}
               />
               <TabButton
                 id="levels"
                 label="Grade Levels"
                 icon={School}
                 isActive={activeTab === 'levels'}
-                onClick={setActiveTab}
+                onClick={(tab) => {
+                  setActiveTab(tab);
+                  setIsSidebarOpen(false);
+                }}
               />
               <TabButton
                 id="sessions"
                 label="Sessions"
                 icon={Clock}
                 isActive={activeTab === 'sessions'}
-                onClick={setActiveTab}
+                onClick={(tab) => {
+                  setActiveTab(tab);
+                  setIsSidebarOpen(false);
+                }}
               />
             </div>
           </nav>
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 p-4 sm:p-8">
-          <button
-            className="lg:hidden mb-4 p-2 bg-blue-600 text-white rounded-lg"
-            onClick={() => setIsSidebarOpen(true)}
-          >
-            Menu
-          </button>
-          {renderContent()}
-          {renderLevelModal()}
-          {renderSubjectModal()}
-          {renderSessionModal()}
-          {renderTermModal()}
+        <div className="flex-1 lg:ml-0">
+          {/* Mobile header */}
+          <div className="lg:hidden bg-white shadow-sm border-b p-4">
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="p-2 rounded-lg hover:bg-gray-100"
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+              <h1 className="text-lg font-semibold text-gray-900">School Admin</h1>
+              <div className="w-10" /> {/* Spacer for centering */}
+            </div>
+          </div>
+          
+          <div className="p-4 lg:p-8">
+            {renderContent()}
+            {renderLevelModal()}
+            {renderSubjectModal()}
+            {renderSessionModal()}
+            {renderTermModal()}
+          </div>
         </div>
       </div>
     </div>

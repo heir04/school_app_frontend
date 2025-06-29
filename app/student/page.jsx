@@ -148,18 +148,15 @@ const StudentDashboard = () => {
 
   const TabButton = ({ id, label, icon: Icon, isActive, onClick }) => (
     <button
-      onClick={() => {
-        onClick(id);
-        setIsSidebarOpen(false); // Close sidebar on mobile after click
-      }}
-      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 w-full text-sm sm:text-base ${
+      onClick={() => onClick(id)}
+      className={`flex items-center gap-3 px-3 sm:px-4 py-3 rounded-lg transition-all duration-200 w-full ${
         isActive 
           ? 'bg-blue-600 text-white shadow-lg' 
           : 'text-gray-600 hover:bg-gray-100'
       }`}
     >
-      <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
-      <span className="font-medium">{label}</span>
+      <Icon className="w-5 h-5 flex-shrink-0" />
+      <span className="font-medium text-sm sm:text-base">{label}</span>
     </button>
   );
 
@@ -483,67 +480,90 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="flex flex-col sm:flex-row">
-        {/* Mobile Menu Button */}
-        {/* <div className="sm:hidden p-4">
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 bg-blue-600 text-white rounded-lg"
-          >
-            {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div> */}
-
+      {/* Mobile sidebar overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+      
+      <div className="flex">
         {/* Sidebar */}
         <div className={`
           fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}>
-          <div className={`fixed sm:static inset-y-0 left-0 w-64 bg-white shadow-lg transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} sm:translate-x-0 transition-transform duration-300 z-50`}>
-            <div className="p-4 sm:p-6">
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <GraduationCap className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
-                Student Portal
+          <div className="p-4 lg:p-6 border-b lg:border-b-0">
+            <div className="flex items-center justify-between">
+              <h1 className="text-lg lg:text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <GraduationCap className="w-6 h-6 lg:w-8 lg:h-8 text-blue-600" />
+                <span className="hidden sm:block">Student Portal</span>
               </h1>
+              <button
+                onClick={() => setIsSidebarOpen(false)}
+                className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
-      
-            <nav className="px-4 pb-4">
-              <div className="space-y-2">
-                <TabButton
-                  id="overview"
-                  label="Dashboard"
-                  icon={BookOpen}
-                  isActive={activeTab === 'overview'}
-                  onClick={setActiveTab}
-                />
-                <TabButton
-                  id="profile"
-                  label="My Profile"
-                  icon={User}
-                  isActive={activeTab === 'profile'}
-                  onClick={setActiveTab}
-                />
-                <TabButton
-                  id="classmates"
-                  label="Classmates"
-                  icon={User}
-                  isActive={activeTab === 'classmates'}
-                  onClick={setActiveTab}
-                />
-              </div>
-            </nav>
           </div>
+          
+          <nav className="px-4 pb-4">
+            <div className="space-y-2">
+              <TabButton
+                id="overview"
+                label="Dashboard"
+                icon={BookOpen}
+                isActive={activeTab === 'overview'}
+                onClick={(tab) => {
+                  setActiveTab(tab);
+                  setIsSidebarOpen(false);
+                }}
+              />
+              <TabButton
+                id="profile"
+                label="My Profile"
+                icon={User}
+                isActive={activeTab === 'profile'}
+                onClick={(tab) => {
+                  setActiveTab(tab);
+                  setIsSidebarOpen(false);
+                }}
+              />
+              <TabButton
+                id="classmates"
+                label="Classmates"
+                icon={User}
+                isActive={activeTab === 'classmates'}
+                onClick={(tab) => {
+                  setActiveTab(tab);
+                  setIsSidebarOpen(false);
+                }}
+              />
+            </div>
+          </nav>
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 p-4 sm:p-8">
-          <button
-            className="lg:hidden mb-4 p-2 bg-blue-600 text-white rounded-lg"
-            onClick={() => setIsSidebarOpen(true)}
-          >
-            Menu
-          </button>
-          {renderContent()}
+        <div className="flex-1 lg:ml-0">
+          {/* Mobile header */}
+          <div className="lg:hidden bg-white shadow-sm border-b p-4">
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="p-2 rounded-lg hover:bg-gray-100"
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+              <h1 className="text-lg font-semibold text-gray-900">Student Portal</h1>
+              <div className="w-10" /> {/* Spacer for centering */}
+            </div>
+          </div>
+          
+          <div className="p-4 lg:p-8">
+            {renderContent()}
+          </div>
         </div>
       </div>
     </div>
