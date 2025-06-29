@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { withAuth } from '../contexts/AuthContext';
 
-const API_BASE_URL = 'http://localhost:5130/api';
+const API_BASE_URL = 'https://schoolapp-production-e49d.up.railway.app/api';
 
 const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');

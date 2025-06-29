@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 
-const API_BASE_URL = 'http://localhost:5130/api';
+const API_BASE_URL = 'https://schoolapp-production-e49d.up.railway.app/api';
 
 const Navbar = () => {
   const router = useRouter();

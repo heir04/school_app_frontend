@@ -29,7 +29,7 @@ const UnauthorizedPage = () => {
                 className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Go Back
+                Back to dashboard
               </button>
             )}
             {user.role.toLowerCase() === 'student' && (
@@ -38,7 +38,7 @@ const UnauthorizedPage = () => {
                 className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Go Back
+                Back to portal
               </button>
             )}
             {(user.role.toLowerCase() === 'admin' || user.role.toLowerCase() === 'superadmin') && (
@@ -47,7 +47,7 @@ const UnauthorizedPage = () => {
                 className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Go Back
+                Back to dashboard
               </button>
             )}
           </>

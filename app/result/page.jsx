@@ -22,7 +22,7 @@ import {
 import { withAuth, useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 
-const API_BASE_URL = 'http://localhost:5130/api';
+const API_BASE_URL = 'https://schoolapp-production-e49d.up.railway.app/api';
 
 const ResultDashboard = () => {
   const { user } = useAuth();

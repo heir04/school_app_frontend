@@ -4,7 +4,7 @@ import { Save, Users, BookOpen, AlertCircle, CheckCircle, XCircle, Clock, AlertT
 import { withAuth } from '../../contexts/AuthContext';
 import Link from 'next/link';
 
-const API_BASE_URL = 'http://localhost:5130/api';
+const API_BASE_URL = 'https://schoolapp-production-e49d.up.railway.app/api';
 
 const BulkResultDashboard = () => {
   const [formData, setFormData] = useState({

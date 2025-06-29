@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { withAuth } from '../../contexts/AuthContext';
 
-const API_BASE_URL = 'http://localhost:5130/api';
+const API_BASE_URL = 'https://schoolapp-production-e49d.up.railway.app/api';
 
 // Move FormField component OUTSIDE of TeacherCreate
 const FormField = ({ label, type = 'text', value, onChange, options, multiple = false, required = false }) => (
