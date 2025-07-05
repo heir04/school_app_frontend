@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { 
   User, 
   BookOpen, 
@@ -266,13 +267,24 @@ const StudentDashboard = () => {
             color="#10B981"
             onClick={() => setActiveTab('classmates')}
           />
-          <ActionCard 
-            title="View Results"
-            description="Check your academic performance"
-            icon={Award}
-            color="#F59E0B"
-            onClick={() => router.push('/result/check-result')}
-          />
+          <Link href="/result/check-result">
+            <ActionCard 
+              title="View Results"
+              description="Check your academic performance"
+              icon={Award}
+              color="#F59E0B"
+              onClick={() => {}}
+            />
+          </Link>
+          <Link href="/student/assignments">
+            <ActionCard 
+              title="View Assignments"
+              description="Access homework and assignments"
+              icon={FileText}
+              color="#8B5CF6"
+              onClick={() => {}}
+            />
+          </Link>
         </div>
 
         <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">

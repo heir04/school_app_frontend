@@ -1,9 +1,9 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { 
-  Users, 
-  GraduationCap, 
-  BookOpen, 
+import {
+  Users,
+  GraduationCap,
+  BookOpen,
   Search,
   Download,
   School,
@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { withAuth, useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const API_BASE_URL = 'https://schoolapp-production-e49d.up.railway.app/api';
 
@@ -92,7 +93,7 @@ const ResultDashboard = () => {
   const fetchDashboardData = async () => {
     setIsLoading(true);
     setError('');
-    
+
     try {
       const [levelsRes, subjectsRes, resultsStatRes] = await Promise.all([
         apiCall('/Level/GetAll'),
@@ -133,7 +134,7 @@ const ResultDashboard = () => {
   // Fetch results by level
   const fetchResultsByLevel = async (levelId) => {
     if (!levelId) return;
-    
+
     setIsLoading(true);
     try {
       const response = await apiCall(`/Result/GetAllByLevel/${levelId}`);
@@ -155,10 +156,10 @@ const ResultDashboard = () => {
 
   // Filter results based on search
   const filteredResults = results.filter(result => {
-    const matchesSearch = searchTerm === '' || 
+    const matchesSearch = searchTerm === '' ||
       result.studentName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       result.level?.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     return matchesSearch;
   });
 
@@ -175,58 +176,57 @@ const ResultDashboard = () => {
       </div>
     </div>
   );
-  
+
   const TabButton = ({ id, label, icon: Icon, isActive, onClick }) => (
     <button
       onClick={() => onClick(id)}
-      className={`flex items-center gap-3 px-3 sm:px-4 py-3 rounded-lg transition-all duration-200 w-full ${
-        isActive 
-          ? 'bg-blue-600 text-white shadow-lg' 
+      className={`flex items-center gap-3 px-3 sm:px-4 py-3 rounded-lg transition-all duration-200 w-full ${isActive
+          ? 'bg-blue-600 text-white shadow-lg'
           : 'text-gray-600 hover:bg-gray-100'
-      }`}
+        }`}
     >
       <Icon className="w-5 h-5 flex-shrink-0" />
       <span className="font-medium text-sm sm:text-base">{label}</span>
     </button>
   );
-  
+
   const ActionButton = ({ title, description, icon: Icon, onClick, color }) => (
-    <div 
+    <div
       onClick={onClick}
       className="bg-white rounded-xl shadow-lg p-4 sm:p-6 cursor-pointer hover:shadow-xl transition-all duration-200 border-l-4"
       style={{ borderLeftColor: color }}
     >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="p-2 sm:p-3 rounded-full" style={{ backgroundColor: `${color}20` }}>
-              <Icon className="w-5 h-5 sm:w-6 sm:h-6" style={{ color }} />
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900 text-sm sm:text-base">{title}</h3>
-              <p className="text-xs sm:text-sm text-gray-600 truncate">{description}</p>
-            </div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="p-2 sm:p-3 rounded-full" style={{ backgroundColor: `${color}20` }}>
+            <Icon className="w-5 h-5 sm:w-6 sm:h-6" style={{ color }} />
           </div>
-          <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-        </div>
-      </div>
-    );
-    const ErrorAlert = ({ message, onClose }) => (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
-        <div className="flex items-start">
-          <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 mt-0.5 mr-2 sm:mr-3 flex-shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-red-800 text-sm sm:text-base break-words">{message}</p>
+          <div>
+            <h3 className="font-semibold text-gray-900 text-sm sm:text-base">{title}</h3>
+            <p className="text-xs sm:text-sm text-gray-600 truncate">{description}</p>
           </div>
-          <button
-            onClick={onClose}
-            className="text-red-600 hover:text-red-800 text-lg sm:text-xl ml-2 flex-shrink-0"
-          >
-            ×
-          </button>
         </div>
+        <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
       </div>
-    );
-    const DataTable = ({ data, columns, actions }) => (
+    </div>
+  );
+  const ErrorAlert = ({ message, onClose }) => (
+    <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+      <div className="flex items-start">
+        <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 mt-0.5 mr-2 sm:mr-3 flex-shrink-0" />
+        <div className="flex-1 min-w-0">
+          <p className="text-red-800 text-sm sm:text-base break-words">{message}</p>
+        </div>
+        <button
+          onClick={onClose}
+          className="text-red-600 hover:text-red-800 text-lg sm:text-xl ml-2 flex-shrink-0"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  );
+  const DataTable = ({ data, columns, actions }) => (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden">
       {/* Mobile Card View */}
       <div className="block sm:hidden">
@@ -325,34 +325,34 @@ const ResultDashboard = () => {
   const renderOverview = () => (
     <div className="space-y-6 sm:space-y-8">
       {error && <ErrorAlert message={error} onClose={() => setError('')} />}
-      
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <StatCard 
-          title="Total Results" 
-          value={stats.totalResults} 
-          icon={FileText} 
-          color="#3B82F6" 
+        <StatCard
+          title="Total Results"
+          value={stats.totalResults}
+          icon={FileText}
+          color="#3B82F6"
           description="Across all levels"
         />
-        <StatCard 
-          title="Pending Remarks" 
-          value={stats.pendingRemarks} 
-          icon={MessageCircle} 
-          color="#F59E0B" 
+        <StatCard
+          title="Pending Remarks"
+          value={stats.pendingRemarks}
+          icon={MessageCircle}
+          color="#F59E0B"
           description="Awaiting admin review"
         />
-        <StatCard 
-          title="Completed Results" 
-          value={stats.completedResults} 
-          icon={TrendingUp} 
-          color="#10B981" 
+        <StatCard
+          title="Completed Results"
+          value={stats.completedResults}
+          icon={TrendingUp}
+          color="#10B981"
           description="With remarks added"
         />
-        <StatCard 
-          title="Total Subjects" 
-          value={stats.totalSubjects} 
-          icon={BookOpen} 
-          color="#8B5CF6" 
+        <StatCard
+          title="Total Subjects"
+          value={stats.totalSubjects}
+          icon={BookOpen}
+          color="#8B5CF6"
           description="Available subjects"
         />
       </div><div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
@@ -363,27 +363,32 @@ const ResultDashboard = () => {
           </h3>
           <div className="space-y-3">
             {user?.role?.toLowerCase() === 'teacher' && (
-              <ActionButton 
+              <Link href="/result/create-bulk">
+                <ActionButton
                 title="Create Bulk Results"
                 description="Upload multiple results at once"
-                icon={Plus} 
-                onClick={() => router.push('/result/create-bulk')}
+                icon={Plus}
+                onClick={() => {}}
                 color="#3B82F6"
               />
+              </Link>
             )}
             {(user?.role?.toLowerCase() === 'admin' || user?.role?.toLowerCase() === 'superadmin') && (
-              <ActionButton 
-                title="Manage Remarks"
-                description="Add or update result remarks"
-                icon={MessageCircle} 
-                onClick={() => router.push('/result/manage-remarks')}
-                color="#F59E0B"
-              />
+
+              <Link href="/result/manage-remarks">
+                <ActionButton
+                  title="Manage Remarks"
+                  description="Add or update result remarks"
+                  icon={MessageCircle}
+                  onClick={() => {}}
+                  color="#F59E0B"
+                />
+              </Link>
             )}
-            <ActionButton 
+            <ActionButton
               title="Export Results"
               description="Download results as CSV/PDF"
-              icon={Download} 
+              icon={Download}
               onClick={() => console.log('Export Results')}
               color="#10B981"
             />
@@ -421,15 +426,14 @@ const ResultDashboard = () => {
       { key: 'studentName', header: 'Student Name' },
       { key: 'level', header: 'Level' },
       { key: 'termName', header: 'Term' },
-      { 
-        key: 'remark', 
+      {
+        key: 'remark',
         header: 'Remark Status',
         render: (result) => (
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-            result.remark 
-              ? 'bg-green-100 text-green-800' 
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${result.remark
+              ? 'bg-green-100 text-green-800'
               : 'bg-orange-100 text-orange-800'
-          }`}>
+            }`}>
             {result.remark ? 'Completed' : 'Pending'}
           </span>
         )
@@ -437,16 +441,16 @@ const ResultDashboard = () => {
     ];
 
     const resultActions = [
-      { 
-        icon: Eye, 
-        label: 'View Details', 
-        onClick: (result) => console.log('View result details', result), 
-        className: 'text-blue-600 hover:bg-blue-100' 
+      {
+        icon: Eye,
+        label: 'View Details',
+        onClick: (result) => console.log('View result details', result),
+        className: 'text-blue-600 hover:bg-blue-100'
       }
-    ];    return (
+    ]; return (
       <div className="space-y-4 sm:space-y-6">
         {error && <ErrorAlert message={error} onClose={() => setError('')} />}
-          <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:gap-4 sm:items-center sm:justify-between">
+        <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:gap-4 sm:items-center sm:justify-between">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Results Management</h2>
           <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:gap-3">
             <select
@@ -501,12 +505,12 @@ const ResultDashboard = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Mobile sidebar overlay */}
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
-      
+
       <div className="flex">
         {/* Sidebar */}
         <div className={`
@@ -527,7 +531,7 @@ const ResultDashboard = () => {
               </button>
             </div>
           </div>
-          
+
           <nav className="px-4 pb-4">
             <div className="space-y-2">
               <TabButton
@@ -569,7 +573,7 @@ const ResultDashboard = () => {
               <div className="w-10" /> {/* Spacer for centering */}
             </div>
           </div>
-          
+
           <div className="p-4 lg:p-8">
             {renderContent()}
           </div>
