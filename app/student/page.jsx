@@ -253,38 +253,40 @@ const StudentDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <div className="space-y-4">
           <h3 className="text-base sm:text-lg font-semibold text-gray-900">Quick Actions</h3>
-          <ActionCard
-            title="View Profile"
-            description="Check and update your personal information"
-            icon={User}
-            color="#3B82F6"
-            onClick={() => setActiveTab('profile')}
-          />
-          <ActionCard
-            title="My Classmates"
-            description="See who's in your class"
-            icon={User}
-            color="#10B981"
-            onClick={() => setActiveTab('classmates')}
-          />
-          <Link href="/result/check-result">
-            <ActionCard 
-              title="View Results"
-              description="Check your academic performance"
-              icon={Award}
-              color="#F59E0B"
-              onClick={() => {}}
+          <div className="space-y-4">
+            <ActionCard
+              title="View Profile"
+              description="Check and update your personal information"
+              icon={User}
+              color="#3B82F6"
+              onClick={() => setActiveTab('profile')}
             />
-          </Link>
-          <Link href="/student/assignments">
-            <ActionCard 
-              title="View Assignments"
-              description="Access homework and assignments"
-              icon={FileText}
-              color="#8B5CF6"
-              onClick={() => {}}
+            <ActionCard
+              title="My Classmates"
+              description="See who's in your class"
+              icon={User}
+              color="#10B981"
+              onClick={() => setActiveTab('classmates')}
             />
-          </Link>
+            <Link href="/result/check-result" className="block">
+              <ActionCard 
+                title="View Results"
+                description="Check your academic performance"
+                icon={Award}
+                color="#F59E0B"
+                onClick={() => {}}
+              />
+            </Link>
+            <Link href="/student/assignments" className="block">
+              <ActionCard 
+                title="View Assignments"
+                description="Access homework and assignments"
+                icon={FileText}
+                color="#8B5CF6"
+                onClick={() => {}}
+              />
+            </Link>
+          </div>
         </div>
 
         <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
@@ -503,7 +505,7 @@ const StudentDashboard = () => {
       <div className="flex">
         {/* Sidebar */}
         <div className={`
-          fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
+          fixed lg:static inset-y-0 left-0 z-40 lg:z-30 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}>
           <div className="p-4 lg:p-6 border-b lg:border-b-0">

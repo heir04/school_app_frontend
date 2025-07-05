@@ -514,7 +514,7 @@ const ResultDashboard = () => {
       <div className="flex">
         {/* Sidebar */}
         <div className={`
-          fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
+          fixed lg:static inset-y-0 left-0 z-40 lg:z-30 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}>
           <div className="p-4 lg:p-6 border-b lg:border-b-0">

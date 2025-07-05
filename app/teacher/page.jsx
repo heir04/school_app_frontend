@@ -320,13 +320,17 @@ const TeacherDashboard = () => {
               disabled={isLoading}
             />
             <Link href="/result" className="sm:col-span-2">
-            <ActionButton 
-              icon={FileText}
-              label="Result Dashboard" 
-              variant="success" 
-              disabled={isLoading}
-            />
-          </Link>
+              <div className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition-colors bg-green-600 hover:bg-green-700 text-white w-full">
+                <FileText className="w-4 h-4" />
+                <span className="text-sm sm:text-base">Result Dashboard</span>
+              </div>
+            </Link>
+            <Link href="/teacher/assignments" className="sm:col-span-2">
+              <div className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition-colors bg-green-600 hover:bg-green-700 text-white w-full">
+                <GraduationCap className="w-4 h-4" />
+                <span className="text-sm sm:text-base">Assignments</span>
+              </div>
+            </Link>
           </div>
         </div>
       </div>
@@ -454,7 +458,7 @@ const TeacherDashboard = () => {
       <div className="flex">
         {/* Sidebar */}
         <div className={`
-          fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
+          fixed lg:static inset-y-0 left-0 z-40 lg:z-30 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}>
           <div className="p-4 lg:p-6 border-b lg:border-b-0">

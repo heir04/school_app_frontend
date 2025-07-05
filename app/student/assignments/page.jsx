@@ -1,9 +1,11 @@
-// pages/assignments/student.jsx
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   BookOpen, 
+  Plus, 
+  Edit, 
+  Trash2, 
   Calendar,
   Clock,
   User,
@@ -13,28 +15,157 @@ import {
   Search,
   Filter,
   Menu,
-  X,
-  GraduationCap,
-  Eye,
-  RefreshCw,
-  ChevronDown
+  X
 } from 'lucide-react';
 import { withAuth } from '../../contexts/AuthContext';
 
 const API_BASE_URL = 'https://schoolapp-production-e49d.up.railway.app/api';
 
-const StudentAssignments = () => {
+// Create the form component outside the main component to prevent re-creation
+const CreateAssignmentForm = React.memo(({ 
+  formData, 
+  editingAssignment, 
+  subjects, 
+  levels, 
+  isLoading, 
+  onSubmit, 
+  onClose, 
+  onFormChange 
+}) => (
+  <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="p-6 border-b">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-900">
+            {editingAssignment ? 'Edit Assignment' : 'Create New Assignment'}
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      <form onSubmit={onSubmit} className="p-6 space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Assignment Content *
+          </label>
+          <textarea
+            value={formData.content}
+            onChange={(e) => onFormChange('content', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            rows="4"
+            required
+            placeholder="Enter assignment content..."
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Instructions
+          </label>
+          <textarea
+            value={formData.instructions}
+            onChange={(e) => onFormChange('instructions', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            rows="3"
+            placeholder="Enter assignment instructions..."
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Subject *
+            </label>
+            <select
+              value={formData.subjectId}
+              onChange={(e) => onFormChange('subjectId', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            >
+              <option value="">Select Subject</option>
+              {subjects.map(subject => (
+                <option key={subject.id} value={subject.id}>{subject.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Level *
+            </label>
+            <select
+              value={formData.levelId}
+              onChange={(e) => onFormChange('levelId', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            >
+              <option value="">Select Level</option>
+              {levels.map(level => (
+                <option key={level.id} value={level.id}>{level.levelName}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Due Date *
+          </label>
+          <input
+            type="date"
+            value={formData.dueDate}
+            onChange={(e) => onFormChange('dueDate', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+
+        <div className="flex gap-3 pt-4">
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isLoading ? 'Saving...' : editingAssignment ? 'Update Assignment' : 'Create Assignment'}
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+));
+
+const TeacherAssignments = () => {
   const [assignments, setAssignments] = useState([]);
-  const [selectedAssignment, setSelectedAssignment] = useState(null);
+  const [levels, setLevels] = useState([]);
+  const [subjects, setSubjects] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingAssignment, setEditingAssignment] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterBy, setFilterBy] = useState('all');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [sortBy, setSortBy] = useState('dueDate');
-  const [sortOrder, setSortOrder] = useState('asc');
   const router = useRouter();
+
+  const [formData, setFormData] = useState({
+    content: '',
+    instructions: '',
+    subjectId: '',
+    levelId: '',
+    dueDate: ''
+  });
 
   const getAuthToken = () => localStorage.getItem('auth-token');
 
@@ -55,9 +186,7 @@ const StudentAssignments = () => {
 
       if (!response.ok) {
         if (response.status === 401) {
-          localStorage.removeItem('auth-token');
-          router.push('/login');
-          throw new Error('Session expired. Please login again.');
+          throw new Error('Unauthorized. Please login again.');
         }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -70,11 +199,41 @@ const StudentAssignments = () => {
     }
   };
 
+  const fetchInitialData = async () => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const [assignmentsRes, levelsRes, subjectsRes] = await Promise.all([
+        apiCall('/Assignment/GetAllTeacherAssignment'),
+        apiCall('/Level/GetAll'),
+        apiCall('/Subject/GetSubjectsByTeacher')
+      ]);
+
+      if (assignmentsRes.status && assignmentsRes.data) {
+        setAssignments(assignmentsRes.data);
+      } else {
+        setError(assignmentsRes.message || 'Failed to fetch assignments');
+      }
+
+      if (levelsRes.status && levelsRes.data) {
+        setLevels(levelsRes.data);
+      }
+
+      if (subjectsRes.status && subjectsRes.data) {
+        setSubjects(subjectsRes.data);
+      }
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const fetchAssignments = async () => {
     setIsLoading(true);
     setError('');
     try {
-      const response = await apiCall('/Assignment/GetAllStudentTermAssignment');
+      const response = await apiCall('/Assignment/GetAllTeacherAssignment');
       if (response.status && response.data) {
         setAssignments(response.data);
       } else {
@@ -87,16 +246,50 @@ const StudentAssignments = () => {
     }
   };
 
-  const viewAssignment = async (assignmentId) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setIsLoading(true);
     setError('');
+
     try {
-      const response = await apiCall(`/Assignment/Get/${assignmentId}`);
-      if (response.status && response.data) {
-        setSelectedAssignment(response.data);
-        setShowModal(true);
+      const formDataToSend = new FormData();
+      Object.keys(formData).forEach(key => {
+        formDataToSend.append(key, formData[key]);
+      });
+
+      const endpoint = editingAssignment 
+        ? `/Assignment/Update/${editingAssignment.id}`
+        : '/Assignment/Create';
+      
+      const method = editingAssignment ? 'PUT' : 'POST';
+
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        method,
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        },
+        body: formDataToSend
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.status) {
+        setShowCreateForm(false);
+        setEditingAssignment(null);
+        setFormData({
+          content: '',
+          instructions: '',
+          subjectId: '',
+          levelId: '',
+          dueDate: ''
+        });
+        fetchAssignments();
       } else {
-        setError(response.message || 'Failed to fetch assignment details');
+        setError(data.message || 'Failed to save assignment');
       }
     } catch (error) {
       setError(error.message);
@@ -105,40 +298,64 @@ const StudentAssignments = () => {
     }
   };
 
-  const sortAssignments = (assignments) => {
-    return [...assignments].sort((a, b) => {
-      let aValue, bValue;
-      
-      switch (sortBy) {
-        case 'dueDate':
-          aValue = new Date(a.dueDate);
-          bValue = new Date(b.dueDate);
-          break;
-        case 'subject':
-          aValue = a.subject?.toLowerCase() || '';
-          bValue = b.subject?.toLowerCase() || '';
-          break;
-        case 'teacher':
-          aValue = a.teacher?.toLowerCase() || '';
-          bValue = b.teacher?.toLowerCase() || '';
-          break;
-        default:
-          aValue = a.content?.toLowerCase() || '';
-          bValue = b.content?.toLowerCase() || '';
-      }
-
-      if (sortOrder === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
+  const handleEdit = (assignment) => {
+    setEditingAssignment(assignment);
+    setFormData({
+      content: assignment.content || '',
+      instructions: assignment.instructions || '',
+      subjectId: assignment.subjectId || '',
+      levelId: assignment.levelId || '',
+      dueDate: assignment.dueDate ? assignment.dueDate.split('T')[0] : ''
     });
+    setShowCreateForm(true);
   };
 
-  const filteredAssignments = sortAssignments(assignments.filter(assignment => {
+  const handleDelete = async (assignmentId) => {
+    if (!confirm('Are you sure you want to delete this assignment?')) return;
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await apiCall(`/Assignment/Delete/${assignmentId}`, {
+        method: 'POST'
+      });
+
+      if (response.status) {
+        fetchAssignments();
+      } else {
+        setError(response.message || 'Failed to delete assignment');
+      }
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCloseForm = useCallback(() => {
+    setShowCreateForm(false);
+    setEditingAssignment(null);
+    setFormData({
+      content: '',
+      instructions: '',
+      subjectId: '',
+      levelId: '',
+      dueDate: ''
+    });
+  }, []);
+
+  const handleFormChange = useCallback((field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  }, []);
+
+  const filteredAssignments = assignments.filter(assignment => {
     const matchesSearch = assignment.content?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          assignment.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         assignment.teacher?.toLowerCase().includes(searchTerm.toLowerCase());
+                         assignment.level?.toLowerCase().includes(searchTerm.toLowerCase());
     
     if (filterBy === 'all') return matchesSearch;
     if (filterBy === 'overdue') {
@@ -153,10 +370,10 @@ const StudentAssignments = () => {
       return matchesSearch && dueDate >= today && dueDate <= nextWeek;
     }
     return matchesSearch;
-  }));
+  });
 
   useEffect(() => {
-    fetchAssignments();
+    fetchInitialData();
   }, []);
 
   const AssignmentCard = ({ assignment }) => {
@@ -164,360 +381,235 @@ const StudentAssignments = () => {
     const today = new Date();
     const isOverdue = dueDate < today;
     const isUpcoming = dueDate >= today && dueDate <= new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-    const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
 
     return (
-      <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border border-gray-100">
+      <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <h3 className="font-semibold text-gray-900 text-lg mb-2 line-clamp-2">
               {assignment.content}
             </h3>
             <div className="flex flex-wrap gap-2 mb-3">
-              <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+              <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
                 {assignment.subject}
               </span>
-              <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+              <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
                 {assignment.level}
               </span>
               {isOverdue && (
-                <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3" />
+                <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">
                   Overdue
                 </span>
               )}
-              {isUpcoming && !isOverdue && (
-                <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
+              {isUpcoming && (
+                <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
                   Due Soon
                 </span>
               )}
             </div>
           </div>
-          <button
-            onClick={() => viewAssignment(assignment.id)}
-            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-            title="View Assignment"
-          >
-            <Eye className="w-5 h-5" />
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleEdit(assignment)}
+              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            >
+              <Edit className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => handleDelete(assignment.id)}
+              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
         </div>
         
         <div className="space-y-2 text-sm text-gray-600">
           <div className="flex items-center gap-2">
-            <User className="w-4 h-4 text-gray-400" />
-            <span>Teacher: {assignment.teacher}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-gray-400" />
+            <Calendar className="w-4 h-4" />
             <span>Due: {dueDate.toLocaleDateString()}</span>
-            {!isOverdue && daysUntilDue >= 0 && (
-              <span className="text-gray-500">
-                ({daysUntilDue === 0 ? 'Today' : `${daysUntilDue} days left`})
-              </span>
-            )}
           </div>
           <div className="flex items-center gap-2">
-            <GraduationCap className="w-4 h-4 text-gray-400" />
+            <Clock className="w-4 h-4" />
             <span>{assignment.session} - {assignment.term}</span>
           </div>
         </div>
+        
+        {assignment.instructions && (
+          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+            <p className="text-sm text-gray-700 line-clamp-3">{assignment.instructions}</p>
+          </div>
+        )}
       </div>
     );
   };
 
-  const AssignmentModal = () => {
-    if (!selectedAssignment) return null;
 
-    const dueDate = new Date(selectedAssignment.dueDate);
-    const today = new Date();
-    const isOverdue = dueDate < today;
-    const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
 
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-          <div className="p-6 border-b bg-gray-50 rounded-t-xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Assignment Details</h2>
-                <p className="text-sm text-gray-600 mt-1">
-                  {selectedAssignment.subject} • {selectedAssignment.level}
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  setShowModal(false);
-                  setSelectedAssignment(null);
-                }}
-                className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
-
-          <div className="p-6">
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <User className="w-5 h-5 text-gray-500" />
-                    <span className="font-medium text-gray-700">Teacher</span>
-                  </div>
-                  <p className="text-gray-900">{selectedAssignment.teacher}</p>
-                </div>
-                
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Calendar className="w-5 h-5 text-gray-500" />
-                    <span className="font-medium text-gray-700">Due Date</span>
-                  </div>
-                  <p className="text-gray-900">{dueDate.toLocaleDateString()}</p>
-                  {!isOverdue && daysUntilDue >= 0 && (
-                    <p className="text-sm text-gray-600">
-                      ({daysUntilDue === 0 ? 'Due Today' : `${daysUntilDue} days remaining`})
-                    </p>
-                  )}
-                  {isOverdue && (
-                    <p className="text-sm text-red-600 flex items-center gap-1">
-                      <AlertCircle className="w-4 h-4" />
-                      Overdue
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                  <FileText className="w-5 h-5" />
-                  Assignment Content
-                </h3>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-gray-800 whitespace-pre-wrap">{selectedAssignment.content}</p>
-                </div>
-              </div>
-
-              {selectedAssignment.instructions && (
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
-                    Instructions
-                  </h3>
-                  <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
-                    <p className="text-gray-800 whitespace-pre-wrap">{selectedAssignment.instructions}</p>
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                  Assignment Information
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <BookOpen className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Subject</p>
-                      <p className="font-medium">{selectedAssignment.subject}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                      <GraduationCap className="w-5 h-5 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Level</p>
-                      <p className="font-medium">{selectedAssignment.level}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                      <Calendar className="w-5 h-5 text-purple-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Session</p>
-                      <p className="font-medium">{selectedAssignment.session}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                      <Clock className="w-5 h-5 text-orange-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Term</p>
-                      <p className="font-medium">{selectedAssignment.term}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+  const ErrorAlert = ({ message, onClose }) => (
+    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+      <div className="flex items-start">
+        <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3" />
+        <div className="flex-1">
+          <p className="text-red-800">{message}</p>
         </div>
-      </div>
-    );
-  };
-
-  const Sidebar = () => (
-    <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static lg:inset-0`}>
-      <div className="flex items-center justify-between h-16 px-4 border-b">
-        <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
         <button
-          onClick={() => setIsSidebarOpen(false)}
-          className="p-2 rounded-md hover:bg-gray-100 lg:hidden"
+          onClick={onClose}
+          className="text-red-600 hover:text-red-800 text-xl"
         >
-          <X className="w-5 h-5" />
+          ×
         </button>
-      </div>
-      
-      <div className="p-4 space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Filter by Status
-          </label>
-          <select
-            value={filterBy}
-            onChange={(e) => setFilterBy(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="all">All Assignments</option>
-            <option value="upcoming">Due Soon</option>
-            <option value="overdue">Overdue</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Sort by
-          </label>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="dueDate">Due Date</option>
-            <option value="subject">Subject</option>
-            <option value="teacher">Teacher</option>
-            <option value="content">Content</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Order
-          </label>
-          <select
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="asc">Ascending</option>
-            <option value="desc">Descending</option>
-          </select>
-        </div>
       </div>
     </div>
   );
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="lg:flex">
-        <Sidebar />
-        
+      {/* Mobile sidebar overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      <div className="flex">
+        {/* Sidebar */}
+        <div className={`
+          fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}>
+          <div className="p-6 border-b">
+            <div className="flex items-center justify-between">
+              <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <BookOpen className="w-8 h-8 text-blue-600" />
+                Teacher Portal
+              </h1>
+              <button
+                onClick={() => setIsSidebarOpen(false)}
+                className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+          
+          <nav className="p-4">
+            <div className="space-y-2">
+              <button
+                className="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg transition-all duration-200 w-full"
+              >
+                <FileText className="w-5 h-5" />
+                <span className="font-medium">Assignments</span>
+              </button>
+            </div>
+          </nav>
+        </div>
+
+        {/* Main Content */}
         <div className="flex-1 lg:ml-0">
-          <div className="sticky top-0 z-40 lg:mx-8 lg:mt-8 bg-white rounded-t-xl shadow-sm">
-            <div className="flex items-center justify-between p-6 border-b">
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => setIsSidebarOpen(true)}
-                  className="p-2 rounded-md hover:bg-gray-100 lg:hidden"
-                >
-                  <Menu className="w-5 h-5" />
-                </button>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">My Assignments</h1>
-                  <p className="text-sm text-gray-600">
-                    {filteredAssignments.length} assignment{filteredAssignments.length !== 1 ? 's' : ''} found
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <input
-                    type="text"
-                    placeholder="Search assignments..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                
-                <button
-                  onClick={fetchAssignments}
-                  disabled={isLoading}
-                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50"
-                  title="Refresh"
-                >
-                  <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
-                </button>
-              </div>
+          {/* Mobile header */}
+          <div className="lg:hidden bg-white shadow-sm border-b p-4">
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="p-2 rounded-lg hover:bg-gray-100"
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+              <h1 className="text-lg font-semibold text-gray-900">Assignments</h1>
+              <div className="w-10" />
             </div>
           </div>
 
-          <div className="p-6 lg:px-8">
-            {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="p-4 lg:p-8">
+            {error && <ErrorAlert message={error} onClose={() => setError('')} />}
+
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">My Assignments</h2>
+                <p className="text-gray-600">Manage your class assignments</p>
+              </div>
+              <button
+                onClick={() => setShowCreateForm(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Plus className="w-5 h-5" />
+                Create Assignment
+              </button>
+            </div>
+
+            {/* Filters */}
+            <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <input
+                      type="text"
+                      placeholder="Search assignments..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
                 <div className="flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5 text-red-600" />
-                  <p className="text-red-800">{error}</p>
+                  <Filter className="w-4 h-4 text-gray-400" />
+                  <select
+                    value={filterBy}
+                    onChange={(e) => setFilterBy(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="all">All Assignments</option>
+                    <option value="upcoming">Due Soon</option>
+                    <option value="overdue">Overdue</option>
+                  </select>
                 </div>
               </div>
-            )}
+            </div>
 
-            {isLoading && (
-              <div className="flex items-center justify-center py-12">
-                <RefreshCw className="w-8 h-8 animate-spin text-blue-600" />
+            {/* Assignments Grid */}
+            {isLoading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
               </div>
-            )}
-
-            {!isLoading && filteredAssignments.length === 0 && !error && (
-              <div className="text-center py-12">
-                <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No assignments found</h3>
-                <p className="text-gray-600">
-                  {searchTerm ? 'Try adjusting your search terms' : 'No assignments have been posted yet'}
-                </p>
-              </div>
-            )}
-
-            {!isLoading && filteredAssignments.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            ) : filteredAssignments.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredAssignments.map((assignment) => (
                   <AssignmentCard key={assignment.id} assignment={assignment} />
                 ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">No assignments found</h3>
+                <p className="text-gray-600 mb-4">
+                  {searchTerm || filterBy !== 'all' 
+                    ? 'Try adjusting your search or filter criteria'
+                    : 'Create your first assignment to get started'
+                  }
+                </p>
+                {!searchTerm && filterBy === 'all' && (
+                  <button
+                    onClick={() => setShowCreateForm(true)}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Create Assignment
+                  </button>
+                )}
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {showModal && <AssignmentModal />}
-      
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
+      {/* Create/Edit Assignment Modal */}
+      {showCreateForm && <CreateAssignmentForm />}
     </div>
   );
 };
 
-export default withAuth(StudentAssignments);
+export default withAuth(TeacherAssignments, ['teacher']);

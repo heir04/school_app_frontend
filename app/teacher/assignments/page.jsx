@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   BookOpen, 
@@ -10,19 +10,139 @@ import {
   Clock,
   User,
   FileText,
-  AlertCircle,
+  AlertTriangle,
   CheckCircle,
   Search,
   Filter,
   Menu,
-  X
+  X,
+  Save,
+  Loader2
 } from 'lucide-react';
 import { withAuth } from '../../contexts/AuthContext';
 
 const API_BASE_URL = 'https://schoolapp-production-e49d.up.railway.app/api';
 
+// Reusable FormField component from students page
+const FormField = ({ label, type = 'text', value, onChange, options, multiple = false, required = false, rows = 3 }) => (
+  <div className="mb-4 w-full">
+    <label className="block text-sm font-medium text-gray-700 mb-2">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
+    {type === 'select' ? (
+      <select
+        value={multiple ? value : (value || '')} 
+        onChange={onChange}
+        multiple={multiple}
+        required={required}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      >
+        {!multiple && <option value="">Select {label}</option>}
+        {options?.map(option => (
+          <option 
+            key={option.value} 
+            value={option.value}
+          >
+            {option.label}
+          </option>
+        ))}
+      </select>
+    ) : type === 'textarea' ? (
+      <textarea
+        value={value || ''}
+        onChange={onChange}
+        required={required}
+        rows={rows}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        placeholder={`Enter ${label.toLowerCase()}`}
+      />
+    ) : (
+      <input
+        type={type}
+        value={value || ''}
+        onChange={onChange}
+        required={required}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        placeholder={`Enter ${label.toLowerCase()}`}
+      />
+    )}
+  </div>
+);
+
+// Reusable ErrorAlert component from students page
+const ErrorAlert = ({ message, onClose }) => (
+  <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 sm:mb-6">
+    <div className="flex items-start">
+      <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 mt-0.5 mr-2 sm:mr-3" />
+      <div className="flex-1">
+        <p className="text-red-800 text-sm sm:text-base">{message}</p>
+      </div>
+      <button
+        onClick={onClose}
+        className="text-red-600 hover:text-red-800"
+      >
+        <X className="w-4 h-4 sm:w-5 sm:h-5" />
+      </button>
+    </div>
+  </div>
+);
+
+// Reusable ActionButton component from students page
+const ActionButton = ({ onClick, icon: Icon, label, variant = 'primary', disabled = false }) => {
+  const variants = {
+    primary: 'bg-blue-600 hover:bg-blue-700 text-white',
+    success: 'bg-green-600 hover:bg-green-700 text-white',
+    danger: 'bg-red-600 hover:bg-red-700 text-white',
+    secondary: 'bg-gray-600 hover:bg-gray-700 text-white'
+  };
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base ${variants[variant]}`}
+    >
+      <Icon className="w-4 h-4" />
+      {label}
+    </button>
+  );
+};
+
+// Reusable Modal component from students page
+const Modal = ({ show, onClose, title, children, size = 'md' }) => {
+  if (!show) return null;
+
+  const sizes = {
+    sm: 'max-w-md',
+    md: 'max-w-lg',
+    lg: 'max-w-2xl',
+    xl: 'max-w-4xl'
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className={`bg-white rounded-xl shadow-2xl w-full ${sizes[size]} max-h-[90vh] overflow-y-auto`}>
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">{title}</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <X className="w-5 h-5 sm:w-6 sm:h-6" />
+          </button>
+        </div>
+        <div className="p-4 sm:p-6">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const TeacherAssignments = () => {
   const [assignments, setAssignments] = useState([]);
+  const [levels, setLevels] = useState([]);
+  const [subjects, setSubjects] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -42,45 +162,58 @@ const TeacherAssignments = () => {
 
   const getAuthToken = () => localStorage.getItem('auth-token');
 
-  const getAuthHeaders = () => ({
-    'Content-Type': 'application/json',
+  const getAuthHeaders = (isJson = true) => ({
+    ...(isJson && { 'Content-Type': 'application/json' }),
     'Authorization': `Bearer ${getAuthToken()}`
   });
 
+  // Unified API call function similar to students page
   const apiCall = async (endpoint, options = {}) => {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         ...options,
-        headers: {
-          ...getAuthHeaders(),
-          ...options.headers
-        }
+        headers: { ...getAuthHeaders(options.isJson), ...options.headers }
       });
 
       if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Unauthorized. Please login again.');
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
+        if (response.status === 401) throw new Error('Unauthorized. Please login again.');
+        const errorText = await response.text();
+        throw new Error(errorText || `HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
-      return data;
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        return await response.json();
+      }
+      return await response.text();
     } catch (error) {
       console.error(`API call failed for ${endpoint}:`, error);
       throw error;
     }
   };
 
-  const fetchAssignments = async () => {
+  const fetchData = async () => {
     setIsLoading(true);
     setError('');
     try {
-      const response = await apiCall('/Assignment/GetAllTeacherAssignment');
-      if (response.status && response.data) {
-        setAssignments(response.data);
+      const [assignmentsRes, levelsRes, subjectsRes] = await Promise.all([
+        apiCall('/Assignment/GetAllTeacherAssignment'),
+        apiCall('/Level/GetAll'),
+        apiCall('/Subject/GetSubjectsByTeacher')
+      ]);
+
+      if (assignmentsRes.status && assignmentsRes.data) {
+        setAssignments(assignmentsRes.data);
       } else {
-        setError(response.message || 'Failed to fetch assignments');
+        setError(assignmentsRes.message || 'Failed to fetch assignments');
+      }
+
+      if (levelsRes.status && levelsRes.data) {
+        setLevels(levelsRes.data);
+      }
+
+      if (subjectsRes.status && subjectsRes.data) {
+        setSubjects(subjectsRes.data);
       }
     } catch (error) {
       setError(error.message);
@@ -89,38 +222,56 @@ const TeacherAssignments = () => {
     }
   };
 
+  const createAssignment = async () => {
+    const formDataToSend = new FormData();
+    Object.keys(formData).forEach(key => {
+      formDataToSend.append(key, formData[key]);
+    });
+
+    const response = await fetch(`${API_BASE_URL}/Assignment/Create`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${getAuthToken()}`
+      },
+      body: formDataToSend
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  };
+
+  const updateAssignment = async (id) => {
+    const payload = {
+      content: formData.content,
+      instructions: formData.instructions,
+      subjectId: formData.subjectId,
+      levelId: formData.levelId,
+      dueDate: formData.dueDate
+    };
+
+    return await apiCall(`/Assignment/Update/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
     try {
-      const formDataToSend = new FormData();
-      Object.keys(formData).forEach(key => {
-        formDataToSend.append(key, formData[key]);
-      });
-
-      const endpoint = editingAssignment 
-        ? `/Assignment/Update/${editingAssignment.id}`
-        : '/Assignment/Create';
-      
-      const method = editingAssignment ? 'PUT' : 'POST';
-
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method,
-        headers: {
-          'Authorization': `Bearer ${getAuthToken()}`
-        },
-        body: formDataToSend
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      let response;
+      if (editingAssignment) {
+        response = await updateAssignment(editingAssignment.id);
+      } else {
+        response = await createAssignment();
       }
 
-      const data = await response.json();
-      
-      if (data.status) {
+      if (response.status) {
         setShowCreateForm(false);
         setEditingAssignment(null);
         setFormData({
@@ -130,12 +281,12 @@ const TeacherAssignments = () => {
           levelId: '',
           dueDate: ''
         });
-        fetchAssignments();
+        await fetchData();
       } else {
-        setError(data.message || 'Failed to save assignment');
+        setError(response.message || 'Failed to save assignment');
       }
     } catch (error) {
-      setError(error.message);
+      setError(`Failed to ${editingAssignment ? 'update' : 'create'} assignment: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -156,25 +307,28 @@ const TeacherAssignments = () => {
   const handleDelete = async (assignmentId) => {
     if (!confirm('Are you sure you want to delete this assignment?')) return;
 
-    setIsLoading(true);
-    setError('');
-
     try {
-      const response = await apiCall(`/Assignment/Delete/${assignmentId}`, {
-        method: 'POST'
-      });
-
-      if (response.status) {
-        fetchAssignments();
-      } else {
-        setError(response.message || 'Failed to delete assignment');
-      }
+      setIsLoading(true);
+      await apiCall(`/Assignment/Delete/${assignmentId}`, { method: 'POST' });
+      await fetchData();
     } catch (error) {
-      setError(error.message);
+      setError(`Failed to delete assignment: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const handleCloseForm = useCallback(() => {
+    setShowCreateForm(false);
+    setEditingAssignment(null);
+    setFormData({
+      content: '',
+      instructions: '',
+      subjectId: '',
+      levelId: '',
+      dueDate: ''
+    });
+  }, []);
 
   const filteredAssignments = assignments.filter(assignment => {
     const matchesSearch = assignment.content?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -197,7 +351,7 @@ const TeacherAssignments = () => {
   });
 
   useEffect(() => {
-    fetchAssignments();
+    fetchData();
   }, []);
 
   const AssignmentCard = ({ assignment }) => {
@@ -235,13 +389,15 @@ const TeacherAssignments = () => {
           <div className="flex gap-2">
             <button
               onClick={() => handleEdit(assignment)}
-              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+              className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+              title="Edit Assignment"
             >
               <Edit className="w-4 h-4" />
             </button>
             <button
               onClick={() => handleDelete(assignment.id)}
               className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              title="Delete Assignment"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -267,152 +423,6 @@ const TeacherAssignments = () => {
       </div>
     );
   };
-
-  const CreateAssignmentForm = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900">
-              {editingAssignment ? 'Edit Assignment' : 'Create New Assignment'}
-            </h2>
-            <button
-              onClick={() => {
-                setShowCreateForm(false);
-                setEditingAssignment(null);
-                setFormData({
-                  content: '',
-                  instructions: '',
-                  subjectId: '',
-                  levelId: '',
-                  dueDate: ''
-                });
-              }}
-              className="p-2 hover:bg-gray-100 rounded-lg"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Assignment Content *
-            </label>
-            <textarea
-              value={formData.content}
-              onChange={(e) => setFormData({...formData, content: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              rows="4"
-              required
-              placeholder="Enter assignment content..."
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Instructions
-            </label>
-            <textarea
-              value={formData.instructions}
-              onChange={(e) => setFormData({...formData, instructions: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              rows="3"
-              placeholder="Enter assignment instructions..."
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Subject ID *
-              </label>
-              <input
-                type="text"
-                value={formData.subjectId}
-                onChange={(e) => setFormData({...formData, subjectId: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-                placeholder="Enter subject ID..."
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Level ID *
-              </label>
-              <input
-                type="text"
-                value={formData.levelId}
-                onChange={(e) => setFormData({...formData, levelId: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-                placeholder="Enter level ID..."
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Due Date *
-            </label>
-            <input
-              type="date"
-              value={formData.dueDate}
-              onChange={(e) => setFormData({...formData, dueDate: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-
-          <div className="flex gap-3 pt-4">
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {isLoading ? 'Saving...' : editingAssignment ? 'Update Assignment' : 'Create Assignment'}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setShowCreateForm(false);
-                setEditingAssignment(null);
-                setFormData({
-                  content: '',
-                  instructions: '',
-                  subjectId: '',
-                  levelId: '',
-                  dueDate: ''
-                });
-              }}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-
-  const ErrorAlert = ({ message, onClose }) => (
-    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-      <div className="flex items-start">
-        <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3" />
-        <div className="flex-1">
-          <p className="text-red-800">{message}</p>
-        </div>
-        <button
-          onClick={onClose}
-          className="text-red-600 hover:text-red-800 text-xl"
-        >
-          ×
-        </button>
-      </div>
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -448,13 +458,6 @@ const TeacherAssignments = () => {
           <nav className="p-4">
             <div className="space-y-2">
               <button
-                onClick={() => router.push('/dashboard')}
-                className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200 w-full"
-              >
-                <BookOpen className="w-5 h-5" />
-                <span className="font-medium">Dashboard</span>
-              </button>
-              <button
                 className="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg transition-all duration-200 w-full"
               >
                 <FileText className="w-5 h-5" />
@@ -489,13 +492,12 @@ const TeacherAssignments = () => {
                 <h2 className="text-2xl font-bold text-gray-900">My Assignments</h2>
                 <p className="text-gray-600">Manage your class assignments</p>
               </div>
-              <button
+              <ActionButton
                 onClick={() => setShowCreateForm(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <Plus className="w-5 h-5" />
-                Create Assignment
-              </button>
+                icon={Plus}
+                label="Create Assignment"
+                disabled={isLoading}
+              />
             </div>
 
             {/* Filters */}
@@ -550,13 +552,11 @@ const TeacherAssignments = () => {
                   }
                 </p>
                 {!searchTerm && filterBy === 'all' && (
-                  <button
+                  <ActionButton
                     onClick={() => setShowCreateForm(true)}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    <Plus className="w-5 h-5" />
-                    Create Assignment
-                  </button>
+                    icon={Plus}
+                    label="Create Assignment"
+                  />
                 )}
               </div>
             )}
@@ -565,7 +565,86 @@ const TeacherAssignments = () => {
       </div>
 
       {/* Create/Edit Assignment Modal */}
-      {showCreateForm && <CreateAssignmentForm />}
+      <Modal
+        show={showCreateForm}
+        onClose={handleCloseForm}
+        title={editingAssignment ? 'Edit Assignment' : 'Create New Assignment'}
+        size="lg"
+      >
+        <form onSubmit={handleSubmit}>
+          <FormField
+            label="Assignment Content"
+            type="textarea"
+            value={formData.content}
+            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+            rows={4}
+            required
+          />
+
+          <FormField
+            label="Instructions"
+            type="textarea"
+            value={formData.instructions}
+            onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
+            rows={3}
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              label="Subject"
+              type="select"
+              value={formData.subjectId}
+              onChange={(e) => setFormData({ ...formData, subjectId: e.target.value })}
+              options={subjects.map(subject => ({ value: subject.id, label: subject.name }))}
+              required
+            />
+
+            <FormField
+              label="Level"
+              type="select"
+              value={formData.levelId}
+              onChange={(e) => setFormData({ ...formData, levelId: e.target.value })}
+              options={levels.map(level => ({ value: level.id, label: level.levelName }))}
+              required
+            />
+          </div>
+
+          <FormField
+            label="Due Date"
+            type="date"
+            value={formData.dueDate}
+            onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+            required
+          />
+
+          <div className="flex justify-end gap-3 mt-6">
+            <button
+              type="button"
+              onClick={handleCloseForm}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800 rounded-lg"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  {editingAssignment ? 'Update' : 'Create'}
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };
