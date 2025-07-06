@@ -111,6 +111,11 @@ const CheckResults = () => {
       const html2pdf = (await import('html2pdf.js')).default;
       
       const element = printRef.current;
+      
+      // Temporarily make the element visible for PDF generation
+      const originalStyle = element.style.cssText;
+      element.style.cssText = 'position: relative; top: auto; left: auto; opacity: 1; width: auto; height: auto;';
+      
       const opt = {
         margin: 1,
         filename: `${result.studentName}_Results_${result.termName}.pdf`,
@@ -119,10 +124,19 @@ const CheckResults = () => {
         jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
       };
 
-      html2pdf().set(opt).from(element).save();
+      await html2pdf().set(opt).from(element).save();
+      
+      // Restore the original hidden styles
+      element.style.cssText = originalStyle;
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Failed to generate PDF. Please try again.');
+      
+      // Make sure to restore styles even if there's an error
+      const element = printRef.current;
+      if (element) {
+        element.style.cssText = 'position: absolute; top: -9999px; left: -9999px; width: 21cm; min-height: 29.7cm; opacity: 0; pointer-events: none;';
+      }
     }
   };
 
