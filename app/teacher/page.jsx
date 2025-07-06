@@ -201,11 +201,11 @@ const TeacherDashboard = () => {
           <thead className="bg-gray-50">
             <tr>
               {columns.map((column, index) => (
-                <th key={index} className="px-3 sm:px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th key={index} className="px-3 sm:px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                   {column.header}
                 </th>
               ))}
-              {actions && <th className="px-3 sm:px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>}
+              {actions && <th className="px-3 sm:px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Actions</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -219,22 +219,24 @@ const TeacherDashboard = () => {
               data.map((row, rowIndex) => (
                 <tr key={rowIndex} className="hover:bg-gray-50">
                   {columns.map((column, colIndex) => (
-                    <td key={colIndex} className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {column.render ? column.render(row) : row[column.key]}
+                    <td key={colIndex} className="px-3 sm:px-6 py-4 text-sm text-gray-900">
+                      <div className="max-w-[200px] truncate" title={column.render ? column.render(row) : row[column.key]}>
+                        {column.render ? column.render(row) : row[column.key]}
+                      </div>
                     </td>
                   ))}
                   {actions && (
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex gap-2 justify-end">
+                      <div className="flex gap-1 sm:gap-2 justify-end">
                         {actions.map((action, actionIndex) => (
                           <button
                             key={actionIndex}
                             onClick={() => action.onClick(row)}
-                            className={`p-2 rounded-lg transition-colors ${action.levelsName}`}
+                            className={`p-1.5 sm:p-2 rounded-lg transition-colors ${action.className}`}
                             title={action.label}
                             disabled={isLoading}
                           >
-                            <action.icon className="w-4 h-4" />
+                            <action.icon className="w-3 h-3 sm:w-4 sm:h-4" />
                           </button>
                         ))}
                       </div>
@@ -245,6 +247,10 @@ const TeacherDashboard = () => {
             )}
           </tbody>
         </table>
+      </div>
+      {/* Scroll indicator for mobile */}
+      <div className="block sm:hidden bg-gray-100 text-center py-2 text-xs text-gray-500">
+        ← Swipe to see more →
       </div>
     </div>
   );
