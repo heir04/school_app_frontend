@@ -152,13 +152,13 @@ const StudentAssignments = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-              <BookOpen className="w-8 h-8 text-blue-600" />
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-2">
+              <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
               My Assignments
             </h1>
             <p className="text-gray-600 mt-2">
@@ -167,7 +167,7 @@ const StudentAssignments = () => {
           </div>
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 rounded-lg hover:bg-gray-100 transition-colors"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 text-gray-600 hover:text-gray-800 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back
@@ -175,7 +175,7 @@ const StudentAssignments = () => {
         </div>
 
         {/* Search Bar */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
           <div className="relative max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
@@ -205,58 +205,58 @@ const StudentAssignments = () => {
                 const { isOverdue, isUpcoming, daysUntilDue, dueDate } = getAssignmentStatus(assignment);
                 
                 return (
-                  <div key={assignment.id} className="p-6 hover:bg-gray-50 transition-colors">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  <div key={assignment.id} className="p-4 sm:p-6 hover:bg-gray-50 transition-colors">
+                    <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                      <div className="flex-1 w-full">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2 break-words">
                           {assignment.content}
                         </h3>
                         
                         <div className="flex flex-wrap gap-2 mb-4">
-                          <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                          <span className="px-2 sm:px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs sm:text-sm font-medium">
                             {assignment.subject}
                           </span>
-                          <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                          <span className="px-2 sm:px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs sm:text-sm font-medium">
                             {assignment.level}
                           </span>
                           {isOverdue && (
-                            <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium flex items-center gap-1">
+                            <span className="px-2 sm:px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1">
                               <AlertCircle className="w-3 h-3" />
                               Overdue
                             </span>
                           )}
                           {isUpcoming && !isOverdue && (
-                            <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium flex items-center gap-1">
+                            <span className="px-2 sm:px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1">
                               <Clock className="w-3 h-3" />
                               Due Soon
                             </span>
                           )}
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
                           <div className="flex items-center gap-2">
-                            <User className="w-4 h-4 text-gray-400" />
-                            <span>Teacher: {assignment.teacher}</span>
+                            <User className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                            <span className="truncate">Teacher: {assignment.teacher}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-gray-400" />
-                            <span>Due: {dueDate.toLocaleDateString()}</span>
+                            <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                            <span className="truncate">Due: {dueDate.toLocaleDateString()}</span>
                             {!isOverdue && daysUntilDue >= 0 && (
-                              <span className="text-gray-500">
+                              <span className="text-gray-500 hidden sm:inline">
                                 ({daysUntilDue === 0 ? 'Today' : `${daysUntilDue} days left`})
                               </span>
                             )}
                           </div>
                           <div className="flex items-center gap-2">
-                            <GraduationCap className="w-4 h-4 text-gray-400" />
-                            <span>{assignment.session} - {assignment.term}</span>
+                            <GraduationCap className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                            <span className="truncate">{assignment.session} - {assignment.term}</span>
                           </div>
                         </div>
                       </div>
                       
                       <button
                         onClick={() => viewAssignment(assignment.id)}
-                        className="flex items-center gap-2 px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="flex items-center gap-2 px-3 sm:px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors w-full sm:w-auto justify-center"
                       >
                         <Eye className="w-4 h-4" />
                         View Details
@@ -274,10 +274,10 @@ const StudentAssignments = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               {/* Modal Header */}
-              <div className="flex items-center justify-between p-6 border-b bg-gray-50">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Assignment Details</h2>
-                  <p className="text-sm text-gray-600 mt-1">
+              <div className="flex items-center justify-between p-4 sm:p-6 border-b bg-gray-50">
+                <div className="flex-1 min-w-0 pr-4">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">Assignment Details</h2>
+                  <p className="text-xs sm:text-sm text-gray-600 mt-1 truncate">
                     {selectedAssignment.subject} • {selectedAssignment.level}
                   </p>
                 </div>
@@ -286,30 +286,30 @@ const StudentAssignments = () => {
                     setShowModal(false);
                     setSelectedAssignment(null);
                   }}
-                  className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                  className="p-2 hover:bg-gray-200 rounded-lg transition-colors flex-shrink-0"
                 >
-                  <X className="w-6 h-6" />
+                  <X className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
               </div>
 
               {/* Modal Content */}
-              <div className="p-6 space-y-6">
+              <div className="p-4 sm:p-6 space-y-6">
                 {/* Assignment Info Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-gray-50 p-3 sm:p-4 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
-                      <User className="w-5 h-5 text-gray-500" />
-                      <span className="font-medium text-gray-700">Teacher</span>
+                      <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
+                      <span className="font-medium text-gray-700 text-sm sm:text-base">Teacher</span>
                     </div>
-                    <p className="text-gray-900 font-semibold">{selectedAssignment.teacher}</p>
+                    <p className="text-gray-900 font-semibold text-sm sm:text-base break-words">{selectedAssignment.teacher}</p>
                   </div>
                   
-                  <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="bg-gray-50 p-3 sm:p-4 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
-                      <Calendar className="w-5 h-5 text-gray-500" />
-                      <span className="font-medium text-gray-700">Due Date</span>
+                      <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
+                      <span className="font-medium text-gray-700 text-sm sm:text-base">Due Date</span>
                     </div>
-                    <p className="text-gray-900 font-semibold">
+                    <p className="text-gray-900 font-semibold text-sm sm:text-base">
                       {new Date(selectedAssignment.dueDate).toLocaleDateString()}
                     </p>
                   </div>
@@ -317,69 +317,69 @@ const StudentAssignments = () => {
 
                 {/* Assignment Content */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <FileText className="w-5 h-5" />
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
                     Assignment Content
                   </h3>
-                  <div className="bg-gray-50 p-4 rounded-lg border-l-4 border-blue-400">
-                    <p className="text-gray-800 whitespace-pre-wrap">{selectedAssignment.content}</p>
+                  <div className="bg-gray-50 p-3 sm:p-4 rounded-lg border-l-4 border-blue-400">
+                    <p className="text-gray-800 whitespace-pre-wrap text-sm sm:text-base break-words">{selectedAssignment.content}</p>
                   </div>
                 </div>
 
                 {/* Instructions */}
                 {selectedAssignment.instructions && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                      <BookOpen className="w-5 h-5" />
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                      <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
                       Instructions
                     </h3>
-                    <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
-                      <p className="text-gray-800 whitespace-pre-wrap">{selectedAssignment.instructions}</p>
+                    <div className="bg-blue-50 p-3 sm:p-4 rounded-lg border-l-4 border-blue-400">
+                      <p className="text-gray-800 whitespace-pre-wrap text-sm sm:text-base break-words">{selectedAssignment.instructions}</p>
                     </div>
                   </div>
                 )}
 
                 {/* Additional Details */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Additional Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3">Additional Information</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <BookOpen className="w-5 h-5 text-blue-600" />
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                       </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Subject</p>
-                        <p className="font-medium">{selectedAssignment.subject}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs sm:text-sm text-gray-600">Subject</p>
+                        <p className="font-medium text-sm sm:text-base truncate">{selectedAssignment.subject}</p>
                       </div>
                     </div>
                     
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <GraduationCap className="w-5 h-5 text-green-600" />
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
                       </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Level</p>
-                        <p className="font-medium">{selectedAssignment.level}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                      <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                        <Calendar className="w-5 h-5 text-purple-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Session</p>
-                        <p className="font-medium">{selectedAssignment.session}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs sm:text-sm text-gray-600">Level</p>
+                        <p className="font-medium text-sm sm:text-base truncate">{selectedAssignment.level}</p>
                       </div>
                     </div>
                     
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                      <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                        <Clock className="w-5 h-5 text-orange-600" />
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
                       </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Term</p>
-                        <p className="font-medium">{selectedAssignment.term}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs sm:text-sm text-gray-600">Session</p>
+                        <p className="font-medium text-sm sm:text-base truncate">{selectedAssignment.session}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs sm:text-sm text-gray-600">Term</p>
+                        <p className="font-medium text-sm sm:text-base truncate">{selectedAssignment.term}</p>
                       </div>
                     </div>
                   </div>

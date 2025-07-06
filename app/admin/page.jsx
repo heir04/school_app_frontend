@@ -95,22 +95,65 @@ const Modal = ({ show, onClose, title, children, size = 'md' }) => {
 
 const DataTable = ({ data, columns, actions }) => (
   <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-    <div className="overflow-x-auto">
+    {/* Mobile Card View */}
+    <div className="block sm:hidden">
+      {data.length === 0 ? (
+        <div className="p-6 text-center text-gray-500">
+          No data available
+        </div>
+      ) : (
+        <div className="divide-y divide-gray-200">
+          {data.map((row, rowIndex) => (
+            <div key={rowIndex} className="p-4 hover:bg-gray-50">
+              <div className="space-y-2">
+                {columns.map((column, colIndex) => (
+                  <div key={colIndex} className="flex justify-between items-start">
+                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wide min-w-[80px]">
+                      {column.header}:
+                    </span>
+                    <span className="text-sm text-gray-900 text-right flex-1 ml-2">
+                      {column.render ? column.render(row) : row[column.key]}
+                    </span>
+                  </div>
+                ))}
+                {actions && (
+                  <div className="flex justify-end pt-2 border-t border-gray-100">
+                    {actions.map((action, actionIndex) => (
+                      <button
+                        key={actionIndex}
+                        onClick={() => action.onClick(row)}
+                        className={`p-2 rounded-lg transition-colors ${action.className} mx-1`}
+                        title={action.label}
+                      >
+                        <action.icon className="w-4 h-4" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+
+    {/* Desktop Table View */}
+    <div className="hidden sm:block overflow-x-auto">
       <table className="w-full">
         <thead className="bg-gray-50">
           <tr>
             {columns.map((column, index) => (
-              <th key={index} className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th key={index} className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 {column.header}
               </th>
             ))}
-            {actions && <th className="px-3 sm:px-6 py-3 sm:py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>}
+            {actions && <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Actions</th>}
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
           {data.length === 0 ? (
             <tr>
-              <td colSpan={columns.length + (actions ? 1 : 0)} className="px-3 sm:px-6 py-4 sm:py-8 text-center text-gray-500">
+              <td colSpan={columns.length + (actions ? 1 : 0)} className="px-6 py-8 text-center text-gray-500">
                 No data available
               </td>
             </tr>
@@ -118,12 +161,14 @@ const DataTable = ({ data, columns, actions }) => (
             data.map((row, rowIndex) => (
               <tr key={rowIndex} className="hover:bg-gray-50">
                 {columns.map((column, colIndex) => (
-                  <td key={colIndex} className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-900">
-                    {column.render ? column.render(row) : row[column.key]}
+                  <td key={colIndex} className="px-6 py-4 text-sm text-gray-900">
+                    <div className="max-w-[250px] truncate" title={column.render ? column.render(row) : row[column.key]}>
+                      {column.render ? column.render(row) : row[column.key]}
+                    </div>
                   </td>
                 ))}
                 {actions && (
-                  <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex gap-2 justify-end">
                       {actions.map((action, actionIndex) => (
                         <button
@@ -584,22 +629,66 @@ const AdminDashboard = () => {
 
   const DataTable = ({ data, columns, actions }) => (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-      <div className="overflow-x-auto">
+      {/* Mobile Card View */}
+      <div className="block sm:hidden">
+        {data.length === 0 ? (
+          <div className="p-6 text-center text-gray-500">
+            No data available
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-200">
+            {data.map((row, rowIndex) => (
+              <div key={rowIndex} className="p-4 hover:bg-gray-50">
+                <div className="space-y-2">
+                  {columns.map((column, colIndex) => (
+                    <div key={colIndex} className="flex justify-between items-start">
+                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide min-w-[80px]">
+                        {column.header}:
+                      </span>
+                      <span className="text-sm text-gray-900 text-right flex-1 ml-2">
+                        {column.render ? column.render(row) : row[column.key]}
+                      </span>
+                    </div>
+                  ))}
+                  {actions && (
+                    <div className="flex justify-end pt-2 border-t border-gray-100">
+                      {actions.map((action, actionIndex) => (
+                        <button
+                          key={actionIndex}
+                          onClick={() => action.onClick(row)}
+                          className={`p-2 rounded-lg transition-colors ${action.className} mx-1`}
+                          title={action.label}
+                          disabled={isLoading}
+                        >
+                          <action.icon className="w-4 h-4" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
               {columns.map((column, index) => (
-                <th key={index} className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th key={index} className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                   {column.header}
                 </th>
               ))}
-              {actions && <th className="px-3 sm:px-6 py-3 sm:py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>}
+              {actions && <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Actions</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length + (actions ? 1 : 0)} className="px-3 sm:px-6 py-4 sm:py-8 text-center text-gray-500">
+                <td colSpan={columns.length + (actions ? 1 : 0)} className="px-6 py-8 text-center text-gray-500">
                   No data available
                 </td>
               </tr>
@@ -607,12 +696,14 @@ const AdminDashboard = () => {
               data.map((row, rowIndex) => (
                 <tr key={rowIndex} className="hover:bg-gray-50">
                   {columns.map((column, colIndex) => (
-                    <td key={colIndex} className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-900">
-                      {column.render ? column.render(row) : row[column.key]}
+                    <td key={colIndex} className="px-6 py-4 text-sm text-gray-900">
+                      <div className="max-w-[250px] truncate" title={column.render ? column.render(row) : row[column.key]}>
+                        {column.render ? column.render(row) : row[column.key]}
+                      </div>
                     </td>
                   ))}
                   {actions && (
-                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex gap-2 justify-end">
                         {actions.map((action, actionIndex) => (
                           <button

@@ -192,29 +192,53 @@ const TeacherAssignments = () => {
     }
   };
 
-  const fetchData = async () => {
-    setIsLoading(true);
-    setError('');
+  const fetchAssignments = async () => {
     try {
-      const [assignmentsRes, levelsRes, subjectsRes] = await Promise.all([
-        apiCall('/Assignment/GetAllTeacherAssignment'),
+      const assignmentsRes = await apiCall('/Assignment/GetAllTeacherAssignment');
+      if (assignmentsRes.status && assignmentsRes.data) {
+        setAssignments(assignmentsRes.data);
+      } else {
+        // Don't set error for empty assignments, just set empty array
+        setAssignments([]);
+      }
+    } catch (error) {
+      console.error('Error fetching assignments:', error);
+      setAssignments([]);
+    }
+  };
+
+  const fetchDropdownData = async () => {
+    try {
+      const [levelsRes, subjectsRes] = await Promise.all([
         apiCall('/Level/GetAll'),
         apiCall('/Subject/GetSubjectsByTeacher')
       ]);
 
-      if (assignmentsRes.status && assignmentsRes.data) {
-        setAssignments(assignmentsRes.data);
-      } else {
-        setError(assignmentsRes.message || 'Failed to fetch assignments');
-      }
-
       if (levelsRes.status && levelsRes.data) {
         setLevels(levelsRes.data);
+      } else {
+        console.error('Failed to fetch levels:', levelsRes.message);
       }
 
       if (subjectsRes.status && subjectsRes.data) {
         setSubjects(subjectsRes.data);
+      } else {
+        console.error('Failed to fetch subjects:', subjectsRes.message);
       }
+    } catch (error) {
+      console.error('Error fetching dropdown data:', error);
+      setError('Failed to load form data. Please refresh the page.');
+    }
+  };
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    setError('');
+    try {
+      await Promise.all([
+        fetchAssignments(),
+        fetchDropdownData()
+      ]);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -281,7 +305,7 @@ const TeacherAssignments = () => {
           levelId: '',
           dueDate: ''
         });
-        await fetchData();
+        await fetchAssignments(); // Only refresh assignments, not dropdown data
       } else {
         setError(response.message || 'Failed to save assignment');
       }
@@ -310,7 +334,7 @@ const TeacherAssignments = () => {
     try {
       setIsLoading(true);
       await apiCall(`/Assignment/Delete/${assignmentId}`, { method: 'POST' });
-      await fetchData();
+      await fetchAssignments(); // Only refresh assignments
     } catch (error) {
       setError(`Failed to delete assignment: ${error.message}`);
     } finally {
@@ -353,6 +377,13 @@ const TeacherAssignments = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Ensure dropdown data is available when opening create form
+  useEffect(() => {
+    if (showCreateForm && (levels.length === 0 || subjects.length === 0)) {
+      fetchDropdownData();
+    }
+  }, [showCreateForm]);
 
   const AssignmentCard = ({ assignment }) => {
     const dueDate = new Date(assignment.dueDate);
