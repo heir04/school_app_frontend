@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { withAuth } from '../../contexts/AuthContext';
 import Link from 'next/link';
-import html2pdf from 'html2pdf.js';
 
 const API_BASE_URL = 'https://schoolapp-production-e49d.up.railway.app/api';
 
@@ -104,19 +103,27 @@ const CheckResults = () => {
     return 'text-red-600';
   };
 
-  const downloadPDF = () => {
+  const downloadPDF = async () => {
     if (!result) return;
 
-    const element = printRef.current;
-    const opt = {
-      margin: 1,
-      filename: `${result.studentName}_Results_${result.termName}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-    };
+    try {
+      // Dynamically import html2pdf only on the client side
+      const html2pdf = (await import('html2pdf.js')).default;
+      
+      const element = printRef.current;
+      const opt = {
+        margin: 1,
+        filename: `${result.studentName}_Results_${result.termName}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
 
-    html2pdf().set(opt).from(element).save();
+      html2pdf().set(opt).from(element).save();
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    }
   };
 
   const ErrorAlert = ({ message }) => (
