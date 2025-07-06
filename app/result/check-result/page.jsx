@@ -186,7 +186,8 @@ const CheckResults = () => {
         {result ? (
           <>
             {/* Printable Content - Hidden from view but available for PDF generation */}
-            <div ref={printRef} className="print-content hidden">
+            <div ref={printRef} className="print-content absolute -top-full left-0 opacity-0 pointer-events-none"
+                 style={{ position: 'absolute', top: '-9999px', left: '-9999px', width: '21cm', minHeight: '29.7cm' }}>
               {/* PDF Header */}
               <div className="bg-white rounded-xl shadow-lg p-6 mb-8 print:shadow-none print:border">
                 <div className="text-center mb-6">
