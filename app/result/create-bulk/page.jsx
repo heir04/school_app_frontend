@@ -9,8 +9,7 @@ const API_BASE_URL = 'https://schoolapp-production-e49d.up.railway.app/api';
 const BulkResultDashboard = () => {
   const [formData, setFormData] = useState({
     levelId: '',
-    subjectId: '',
-    remark: ''
+    subjectId: ''
   });
   const [students, setStudents] = useState([]);
   const [studentScores, setStudentScores] = useState({});
@@ -194,7 +193,6 @@ const BulkResultDashboard = () => {
       const bulkResultData = {
         levelId: formData.levelId,
         subjectId: formData.subjectId,
-        remark: formData.remark,
         studentScores: students.map(student => ({
           studentId: student.id,
           studentName: student.fullName,
@@ -247,7 +245,7 @@ const BulkResultDashboard = () => {
                   setShowResults(false);
                   setResults([]);
                   setStudentScores({});
-                  setFormData({ levelId: '', subjectId: '', remark: '' });
+                  setFormData({ levelId: '', subjectId: '' });
                 }}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
@@ -311,7 +309,7 @@ const BulkResultDashboard = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Level *
@@ -346,20 +344,6 @@ const BulkResultDashboard = () => {
                     <option key={subject.id} value={subject.id}>{subject.name}</option>
                   ))}
                 </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  General Remark
-                </label>
-                <input
-                  type="text"
-                  name="remark"
-                  value={formData.remark}
-                  onChange={handleInputChange}
-                  placeholder="Enter remark"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
               </div>
             </div>
 
@@ -408,7 +392,7 @@ const BulkResultDashboard = () => {
                           </td>
                           <td className="border border-gray-300 px-4 py-2">
                             <div className="flex items-center space-x-2">
-                              <span className="font-medium">{student.firstName} {student.lastName}</span>
+                              <span className="font-medium text-gray-900">{student.fullName}</span>
                               {student.hasExistingScore && (
                                 <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
                                   Has Score
