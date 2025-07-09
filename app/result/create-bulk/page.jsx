@@ -392,7 +392,7 @@ const BulkResultDashboard = () => {
                           </td>
                           <td className="border border-gray-300 px-4 py-2">
                             <div className="flex items-center space-x-2">
-                              <span className="font-medium text-gray-900">{student.fullName}</span>
+                              <span className="font-medium text-gray-900">{student.firstName} {student.lastName}</span>
                               {student.hasExistingScore && (
                                 <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
                                   Has Score
