@@ -1,12 +1,12 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { 
-  Users, 
-  GraduationCap, 
-  BookOpen, 
+"use client";
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import {
+  Users,
+  GraduationCap,
+  BookOpen,
   School,
-  Settings, 
+  Settings,
   Edit,
   Trash2,
   Search,
@@ -20,18 +20,26 @@ import {
   Plus,
   FileText,
   Clock,
-  Menu
-} from 'lucide-react';
-import { withAuth, useAuth } from '../contexts/AuthContext';
+  Menu,
+} from "lucide-react";
+import { withAuth, useAuth } from "../contexts/AuthContext";
 
-const API_BASE_URL = 'https://schoolapp-production-e49d.up.railway.app/api';
+const API_BASE_URL = "https://schoolapp-production-e49d.up.railway.app/api";
 
-const FormField = ({ label, type = 'text', value, onChange, options, multiple = false, required = false }) => (
+const FormField = ({
+  label,
+  type = "text",
+  value,
+  onChange,
+  options,
+  multiple = false,
+  required = false,
+}) => (
   <div className="mb-4 w-full">
     <label className="block text-sm font-medium text-gray-700 mb-2">
       {label} {required && <span className="text-red-500">*</span>}
     </label>
-    {type === 'select' ? (
+    {type === "select" ? (
       <select
         value={multiple ? undefined : value}
         onChange={onChange}
@@ -40,9 +48,9 @@ const FormField = ({ label, type = 'text', value, onChange, options, multiple = 
         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       >
         {!multiple && <option value="">Select {label}</option>}
-        {options?.map(option => (
-          <option 
-            key={option.value} 
+        {options?.map((option) => (
+          <option
+            key={option.value}
             value={option.value}
             selected={multiple && value.includes(option.value)}
           >
@@ -63,21 +71,25 @@ const FormField = ({ label, type = 'text', value, onChange, options, multiple = 
   </div>
 );
 
-const Modal = ({ show, onClose, title, children, size = 'md' }) => {
+const Modal = ({ show, onClose, title, children, size = "md" }) => {
   if (!show) return null;
 
   const sizes = {
-    sm: 'max-w-md',
-    md: 'max-w-lg',
-    lg: 'max-w-2xl',
-    xl: 'max-w-4xl'
+    sm: "max-w-md",
+    md: "max-w-lg",
+    lg: "max-w-2xl",
+    xl: "max-w-4xl",
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className={`bg-white rounded-xl shadow-2xl w-full ${sizes[size]} max-h-[90vh] overflow-y-auto`}>
+      <div
+        className={`bg-white rounded-xl shadow-2xl w-full ${sizes[size]} max-h-[90vh] overflow-y-auto`}
+      >
         <div className="flex items-center justify-between p-4 sm:p-6 border-b">
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">{title}</h2>
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+            {title}
+          </h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -85,9 +97,7 @@ const Modal = ({ show, onClose, title, children, size = 'md' }) => {
             <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
-        <div className="p-4 sm:p-6">
-          {children}
-        </div>
+        <div className="p-4 sm:p-6">{children}</div>
       </div>
     </div>
   );
@@ -98,16 +108,17 @@ const DataTable = ({ data, columns, actions }) => (
     {/* Mobile Card View */}
     <div className="block sm:hidden">
       {data.length === 0 ? (
-        <div className="p-6 text-center text-gray-500">
-          No data available
-        </div>
+        <div className="p-6 text-center text-gray-500">No data available</div>
       ) : (
         <div className="divide-y divide-gray-200">
           {data.map((row, rowIndex) => (
             <div key={rowIndex} className="p-4 hover:bg-gray-50">
               <div className="space-y-2">
                 {columns.map((column, colIndex) => (
-                  <div key={colIndex} className="flex justify-between items-start">
+                  <div
+                    key={colIndex}
+                    className="flex justify-between items-start"
+                  >
                     <span className="text-xs font-medium text-gray-500 uppercase tracking-wide min-w-[80px]">
                       {column.header}:
                     </span>
@@ -143,17 +154,27 @@ const DataTable = ({ data, columns, actions }) => (
         <thead className="bg-gray-50">
           <tr>
             {columns.map((column, index) => (
-              <th key={index} className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+              <th
+                key={index}
+                className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap"
+              >
                 {column.header}
               </th>
             ))}
-            {actions && <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Actions</th>}
+            {actions && (
+              <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                Actions
+              </th>
+            )}
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
           {data.length === 0 ? (
             <tr>
-              <td colSpan={columns.length + (actions ? 1 : 0)} className="px-6 py-8 text-center text-gray-500">
+              <td
+                colSpan={columns.length + (actions ? 1 : 0)}
+                className="px-6 py-8 text-center text-gray-500"
+              >
                 No data available
               </td>
             </tr>
@@ -161,8 +182,16 @@ const DataTable = ({ data, columns, actions }) => (
             data.map((row, rowIndex) => (
               <tr key={rowIndex} className="hover:bg-gray-50">
                 {columns.map((column, colIndex) => (
-                  <td key={colIndex} className="px-6 py-4 text-sm text-gray-900">
-                    <div className="max-w-[250px] truncate" title={column.render ? column.render(row) : row[column.key]}>
+                  <td
+                    key={colIndex}
+                    className="px-6 py-4 text-sm text-gray-900"
+                  >
+                    <div
+                      className="max-w-[250px] truncate"
+                      title={
+                        column.render ? column.render(row) : row[column.key]
+                      }
+                    >
                       {column.render ? column.render(row) : row[column.key]}
                     </div>
                   </td>
@@ -194,11 +223,11 @@ const DataTable = ({ data, columns, actions }) => (
 
 const AdminDashboard = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('overview');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedLevel, setSelectedLevel] = useState('');
+  const [activeTab, setActiveTab] = useState("overview");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedLevel, setSelectedLevel] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Modal states
@@ -212,23 +241,23 @@ const AdminDashboard = () => {
 
   // Form states
   const [levelForm, setLevelForm] = useState({
-    levelName: '',
-    category: ''
+    levelName: "",
+    category: "",
   });
 
   const [subjectForm, setSubjectForm] = useState({
-    name: '',
-    category: ''
+    name: "",
+    category: "",
   });
 
   const [sessionForm, setSessionForm] = useState({
-    sessionName: '',
-    startDate: '',
-    endDate: ''
+    sessionName: "",
+    startDate: "",
+    endDate: "",
   });
 
   const [termForm, setTermForm] = useState({
-    termId: ''
+    termId: "",
   });
 
   // State for real data
@@ -236,7 +265,7 @@ const AdminDashboard = () => {
     totalStudents: 0,
     totalTeachers: 0,
     totalSubjects: 0,
-    totalLevels: 0
+    totalLevels: 0,
   });
 
   const [subjects, setSubjects] = useState([]);
@@ -247,21 +276,21 @@ const AdminDashboard = () => {
 
   // Get auth token from localStorage
   const getAuthToken = () => {
-    return localStorage.getItem('auth-token');
+    return localStorage.getItem("auth-token");
   };
 
   // Create headers with auth token
   const getAuthHeaders = (isJson = true) => {
     const token = getAuthToken();
     const headers = {
-      'Authorization': `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     };
-    
+
     // Only set Content-Type for JSON, not for FormData
     if (isJson) {
-      headers['Content-Type'] = 'application/json';
+      headers["Content-Type"] = "application/json";
     }
-    
+
     return headers;
   };
 
@@ -276,14 +305,14 @@ const AdminDashboard = () => {
 
       if (!response.ok) {
         if (response.status === 401) {
-          throw new Error('Unauthorized. Please login again.');
+          throw new Error("Unauthorized. Please login again.");
         }
         let errorText = await response.text();
         throw new Error(errorText || `HTTP error! status: ${response.status}`);
       }
 
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
         return await response.json();
       } else {
         return await response.text();
@@ -297,34 +326,57 @@ const AdminDashboard = () => {
   // Fetch all data
   const fetchAllData = async () => {
     setIsLoading(true);
-    setError('');
+    setError("");
     try {
-      const [subjectsRes, levelsRes, sessionsRes, termsRes, currentSessionTermRes, studentsRes, teachersRes] = await Promise.all([
-        apiCall('/Subject/GetAll'),
-        apiCall('/Level/GetAll'),
-        apiCall('/Session/GetAll'),
-        apiCall('/Session/GetAllSessionTerm'),
-        apiCall('/Session/GetCurrentSessionAndTermName'),
-        apiCall('/Student/Count'),
-        apiCall('/Teacher/Count')
+      const [
+        subjectsRes,
+        levelsRes,
+        sessionsRes,
+        termsRes,
+        currentSessionTermRes,
+        studentsRes,
+        teachersRes,
+      ] = await Promise.all([
+        apiCall("/Subject/GetAll"),
+        apiCall("/Level/GetAll"),
+        apiCall("/Session/GetAll"),
+        apiCall("/Session/GetAllSessionTerm"),
+        apiCall("/Session/GetCurrentSessionAndTermName"),
+        apiCall("/Student/Count"),
+        apiCall("/Teacher/Count"),
       ]);
 
       if (subjectsRes.status && subjectsRes.data) {
         setSubjects(subjectsRes.data);
-        setStats(prev => ({ ...prev, totalSubjects: subjectsRes.data.length || 0 }));
+        setStats((prev) => ({
+          ...prev,
+          totalSubjects: subjectsRes.data.length || 0,
+        }));
       }
       if (levelsRes.status && levelsRes.data) {
         setLevels(levelsRes.data);
-        setStats(prev => ({ ...prev, totalLevels: levelsRes.data.length || 0}));
+        setStats((prev) => ({
+          ...prev,
+          totalLevels: levelsRes.data.length || 0,
+        }));
       }
       if (sessionsRes.status && sessionsRes.data) setSessions(sessionsRes.data);
       if (termsRes.status && termsRes.data) setTerms(termsRes.data);
-      if (currentSessionTermRes.status && currentSessionTermRes.data) setCurrentSessionTerm(currentSessionTermRes.data);
-      if (studentsRes.status && studentsRes.data) setStats(prev => ({ ...prev, totalStudents: studentsRes.data.count }));
-      if (teachersRes.status && teachersRes.data) setStats(prev => ({ ...prev, totalTeachers: teachersRes.data.count }));
+      if (currentSessionTermRes.status && currentSessionTermRes.data)
+        setCurrentSessionTerm(currentSessionTermRes.data);
+      if (studentsRes.status && studentsRes.data)
+        setStats((prev) => ({
+          ...prev,
+          totalStudents: studentsRes.data.count,
+        }));
+      if (teachersRes.status && teachersRes.data)
+        setStats((prev) => ({
+          ...prev,
+          totalTeachers: teachersRes.data.count,
+        }));
     } catch (error) {
       setError(error.message);
-      console.error('Error fetching data:', error);
+      console.error("Error fetching data:", error);
     } finally {
       setIsLoading(false);
     }
@@ -332,10 +384,10 @@ const AdminDashboard = () => {
 
   const handleDeleteSubject = async (subject) => {
     if (!confirm(`Are you sure you want to delete ${subject.name}?`)) return;
-    
+
     try {
       setIsLoading(true);
-      await apiCall(`/Subject/Delete/${subject.id}`, { method: 'POST' });
+      await apiCall(`/Subject/Delete/${subject.id}`, { method: "POST" });
       await fetchAllData();
     } catch (error) {
       setError(`Failed to delete subject: ${error.message}`);
@@ -346,10 +398,10 @@ const AdminDashboard = () => {
 
   const handleDeleteLevel = async (level) => {
     if (!confirm(`Are you sure you want to delete ${level.levelName}?`)) return;
-    
+
     try {
       setIsLoading(true);
-      await apiCall(`/Level/Delete/${level.id}`, { method: 'POST' });
+      await apiCall(`/Level/Delete/${level.id}`, { method: "POST" });
       await fetchAllData();
     } catch (error) {
       setError(`Failed to delete level: ${error.message}`);
@@ -359,11 +411,12 @@ const AdminDashboard = () => {
   };
 
   const handleDeleteSession = async (session) => {
-    if (!confirm(`Are you sure you want to delete ${session.sessionName}?`)) return;
-    
+    if (!confirm(`Are you sure you want to delete ${session.sessionName}?`))
+      return;
+
     try {
       setIsLoading(true);
-      await apiCall(`/Session/Delete/${session.id}`, { method: 'POST' });
+      await apiCall(`/Session/Delete/${session.id}`, { method: "POST" });
       await fetchAllData();
     } catch (error) {
       setError(`Failed to delete session: ${error.message}`);
@@ -376,7 +429,7 @@ const AdminDashboard = () => {
     setEditingLevel(level);
     setLevelForm({
       levelName: level.levelName,
-      category: level.category || ''
+      category: level.category || "",
     });
     setShowLevelModal(true);
   };
@@ -385,7 +438,7 @@ const AdminDashboard = () => {
     setEditingSubject(subject);
     setSubjectForm({
       name: subject.name,
-      category: subject.category || ''
+      category: subject.category || "",
     });
     setShowSubjectModal(true);
   };
@@ -394,41 +447,45 @@ const AdminDashboard = () => {
     setEditingSession(session);
     setSessionForm({
       sessionName: session.sessionName,
-      startDate: session.startDate ? new Date(session.startDate).toISOString().split('T')[0] : '',
-      endDate: session.endDate ? new Date(session.endDate).toISOString().split('T')[0] : ''
+      startDate: session.startDate
+        ? new Date(session.startDate).toISOString().split("T")[0]
+        : "",
+      endDate: session.endDate
+        ? new Date(session.endDate).toISOString().split("T")[0]
+        : "",
     });
     setShowSessionModal(true);
   };
 
   const createLevel = async () => {
     const formData = new FormData();
-    formData.append('levelName', levelForm.levelName);
-    formData.append('category', levelForm.category);
+    formData.append("levelName", levelForm.levelName);
+    formData.append("category", levelForm.category);
 
-    await apiCall('/Level/Create', {
-      method: 'POST',
+    await apiCall("/Level/Create", {
+      method: "POST",
       headers: getAuthHeaders(false),
       body: formData,
-      isJson: false
+      isJson: false,
     });
   };
 
   const updateLevel = async (id) => {
     const payload = {
       levelName: levelForm.levelName,
-      category: levelForm.category
+      category: levelForm.category,
     };
 
     await apiCall(`/Level/Update/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(payload)
+      method: "PUT",
+      body: JSON.stringify(payload),
     });
   };
 
   const handleLevelSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     try {
       if (editingLevel) {
         await updateLevel(editingLevel.id);
@@ -439,9 +496,12 @@ const AdminDashboard = () => {
       await fetchAllData();
       setShowLevelModal(false);
       setEditingLevel(null);
-      setLevelForm({ levelName: '', category: '' });
+      setLevelForm({ levelName: "", category: "" });
     } catch (error) {
-      setError(`Failed to ${editingLevel ? 'update' : 'create'} level: ${error.message}`);
+      setError(
+        `Failed to ${editingLevel ? "update" : "create"} level: ${error.message
+        }`
+      );
     } finally {
       setIsLoading(false);
     }
@@ -449,33 +509,33 @@ const AdminDashboard = () => {
 
   const createSubject = async () => {
     const formData = new FormData();
-    formData.append('name', subjectForm.name);
-    formData.append('category', subjectForm.category);
+    formData.append("name", subjectForm.name);
+    formData.append("category", subjectForm.category);
 
-    await apiCall('/Subject/Create', {
-      method: 'POST',
+    await apiCall("/Subject/Create", {
+      method: "POST",
       headers: getAuthHeaders(false),
       body: formData,
-      isJson: false
+      isJson: false,
     });
   };
 
   const updateSubject = async (id) => {
     const payload = {
       name: subjectForm.name,
-      category: subjectForm.category
+      category: subjectForm.category,
     };
 
     await apiCall(`/Subject/Update/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(payload)
+      method: "PUT",
+      body: JSON.stringify(payload),
     });
   };
 
   const handleSubjectSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     try {
       if (editingSubject) {
         await updateSubject(editingSubject.id);
@@ -486,9 +546,12 @@ const AdminDashboard = () => {
       await fetchAllData();
       setShowSubjectModal(false);
       setEditingSubject(null);
-      setSubjectForm({ name: '', category: '' });
+      setSubjectForm({ name: "", category: "" });
     } catch (error) {
-      setError(`Failed to ${editingSubject ? 'update' : 'create'} subject: ${error.message}`);
+      setError(
+        `Failed to ${editingSubject ? "update" : "create"} subject: ${error.message
+        }`
+      );
     } finally {
       setIsLoading(false);
     }
@@ -496,15 +559,15 @@ const AdminDashboard = () => {
 
   const createSession = async () => {
     const formData = new FormData();
-    formData.append('sessionName', sessionForm.sessionName);
-    formData.append('startDate', sessionForm.startDate);
-    formData.append('endDate', sessionForm.endDate);
+    formData.append("sessionName", sessionForm.sessionName);
+    formData.append("startDate", sessionForm.startDate);
+    formData.append("endDate", sessionForm.endDate);
 
-    await apiCall('/Session/Register', {
-      method: 'POST',
+    await apiCall("/Session/Register", {
+      method: "POST",
       headers: getAuthHeaders(false),
       body: formData,
-      isJson: false
+      isJson: false,
     });
   };
 
@@ -512,19 +575,19 @@ const AdminDashboard = () => {
     const payload = {
       sessionName: sessionForm.sessionName,
       startDate: sessionForm.startDate,
-      endDate: sessionForm.endDate
+      endDate: sessionForm.endDate,
     };
 
     await apiCall(`/Session/Update/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(payload)
+      method: "PUT",
+      body: JSON.stringify(payload),
     });
   };
 
   const handleSessionSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     try {
       if (editingSession) {
         await updateSession(editingSession.id);
@@ -535,20 +598,23 @@ const AdminDashboard = () => {
       await fetchAllData();
       setShowSessionModal(false);
       setEditingSession(null);
-      setSessionForm({ sessionName: '', startDate: '', endDate: '' });
+      setSessionForm({ sessionName: "", startDate: "", endDate: "" });
     } catch (error) {
-      setError(`Failed to ${editingSession ? 'update' : 'create'} session: ${error.message}`);
+      setError(
+        `Failed to ${editingSession ? "update" : "create"} session: ${error.message
+        }`
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleEndSession = async () => {
-    if (!confirm('Are you sure you want to end the current session?')) return;
-    
+    if (!confirm("Are you sure you want to end the current session?")) return;
+
     try {
       setIsLoading(true);
-      await apiCall('/Session/EndSession', { method: 'PUT' });
+      await apiCall("/Session/EndSession", { method: "PUT" });
       await fetchAllData();
     } catch (error) {
       setError(`Failed to end session: ${error.message}`);
@@ -560,12 +626,14 @@ const AdminDashboard = () => {
   const handleUpdateTerm = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     try {
-      await apiCall(`/Session/UpdateCurrentTerm/${termForm.termId}`, { method: 'PUT' });
+      await apiCall(`/Session/UpdateCurrentTerm/${termForm.termId}`, {
+        method: "PUT",
+      });
       await fetchAllData();
       setShowTermModal(false);
-      setTermForm({ termId: '' });
+      setTermForm({ termId: "" });
     } catch (error) {
       setError(`Failed to update term: ${error.message}`);
     } finally {
@@ -580,13 +648,21 @@ const AdminDashboard = () => {
 
   // Components
   const StatCard = ({ title, value, icon: Icon, color }) => (
-    <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border-l-4" style={{ borderLeftColor: color }}>
+    <div
+      className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border-l-4"
+      style={{ borderLeftColor: color }}
+    >
       <div className="flex items-center justify-between">
         <div>
           <p className="text-gray-600 text-sm font-medium">{title}</p>
-          <p className="text-2xl sm:text-3xl font-bold text-gray-900">{value}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-gray-900">
+            {value}
+          </p>
         </div>
-        <div className="p-2 sm:p-3 rounded-full" style={{ backgroundColor: `${color}20` }}>
+        <div
+          className="p-2 sm:p-3 rounded-full"
+          style={{ backgroundColor: `${color}20` }}
+        >
           <Icon className="w-6 h-6 sm:w-8 sm:h-8" style={{ color }} />
         </div>
       </div>
@@ -596,23 +672,28 @@ const AdminDashboard = () => {
   const TabButton = ({ id, label, icon: Icon, isActive, onClick }) => (
     <button
       onClick={() => onClick(id)}
-      className={`flex items-center gap-3 px-3 sm:px-4 py-3 rounded-lg transition-all duration-200 w-full ${
-        isActive 
-          ? 'bg-blue-600 text-white shadow-lg' 
-          : 'text-gray-600 hover:bg-gray-100'
-      }`}
+      className={`flex items-center gap-3 px-3 sm:px-4 py-3 rounded-lg transition-all duration-200 w-full ${isActive
+          ? "bg-blue-600 text-white shadow-lg"
+          : "text-gray-600 hover:bg-gray-100"
+        }`}
     >
       <Icon className="w-5 h-5 flex-shrink-0" />
       <span className="font-medium text-sm sm:text-base">{label}</span>
     </button>
   );
 
-  const ActionButton = ({ onClick, icon: Icon, label, variant = 'primary', disabled = false }) => {
+  const ActionButton = ({
+    onClick,
+    icon: Icon,
+    label,
+    variant = "primary",
+    disabled = false,
+  }) => {
     const variants = {
-      primary: 'bg-blue-600 hover:bg-blue-700 text-white',
-      success: 'bg-green-600 hover:bg-green-700 text-white',
-      danger: 'bg-red-600 hover:bg-red-700 text-white',
-      secondary: 'bg-gray-600 hover:bg-gray-700 text-white'
+      primary: "bg-blue-600 hover:bg-blue-700 text-white",
+      success: "bg-green-600 hover:bg-green-700 text-white",
+      danger: "bg-red-600 hover:bg-red-700 text-white",
+      secondary: "bg-gray-600 hover:bg-gray-700 text-white",
     };
 
     return (
@@ -632,16 +713,17 @@ const AdminDashboard = () => {
       {/* Mobile Card View */}
       <div className="block sm:hidden">
         {data.length === 0 ? (
-          <div className="p-6 text-center text-gray-500">
-            No data available
-          </div>
+          <div className="p-6 text-center text-gray-500">No data available</div>
         ) : (
           <div className="divide-y divide-gray-200">
             {data.map((row, rowIndex) => (
               <div key={rowIndex} className="p-4 hover:bg-gray-50">
                 <div className="space-y-2">
                   {columns.map((column, colIndex) => (
-                    <div key={colIndex} className="flex justify-between items-start">
+                    <div
+                      key={colIndex}
+                      className="flex justify-between items-start"
+                    >
                       <span className="text-xs font-medium text-gray-500 uppercase tracking-wide min-w-[80px]">
                         {column.header}:
                       </span>
@@ -678,17 +760,27 @@ const AdminDashboard = () => {
           <thead className="bg-gray-50">
             <tr>
               {columns.map((column, index) => (
-                <th key={index} className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                <th
+                  key={index}
+                  className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap"
+                >
                   {column.header}
                 </th>
               ))}
-              {actions && <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Actions</th>}
+              {actions && (
+                <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                  Actions
+                </th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length + (actions ? 1 : 0)} className="px-6 py-8 text-center text-gray-500">
+                <td
+                  colSpan={columns.length + (actions ? 1 : 0)}
+                  className="px-6 py-8 text-center text-gray-500"
+                >
                   No data available
                 </td>
               </tr>
@@ -696,8 +788,16 @@ const AdminDashboard = () => {
               data.map((row, rowIndex) => (
                 <tr key={rowIndex} className="hover:bg-gray-50">
                   {columns.map((column, colIndex) => (
-                    <td key={colIndex} className="px-6 py-4 text-sm text-gray-900">
-                      <div className="max-w-[250px] truncate" title={column.render ? column.render(row) : row[column.key]}>
+                    <td
+                      key={colIndex}
+                      className="px-6 py-4 text-sm text-gray-900"
+                    >
+                      <div
+                        className="max-w-[250px] truncate"
+                        title={
+                          column.render ? column.render(row) : row[column.key]
+                        }
+                      >
                         {column.render ? column.render(row) : row[column.key]}
                       </div>
                     </td>
@@ -735,10 +835,7 @@ const AdminDashboard = () => {
         <div className="flex-1">
           <p className="text-red-800 text-sm sm:text-base">{message}</p>
         </div>
-        <button
-          onClick={onClose}
-          className="text-red-600 hover:text-red-800"
-        >
+        <button onClick={onClose} className="text-red-600 hover:text-red-800">
           <X className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
       </div>
@@ -747,40 +844,50 @@ const AdminDashboard = () => {
 
   const renderOverview = () => (
     <div className="space-y-6 sm:space-y-8">
-      {error && <ErrorAlert message={error} onClose={() => setError('')} />}
+      {error && <ErrorAlert message={error} onClose={() => setError("")} />}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <StatCard title="Total Students" value={stats.totalStudents} icon={Users} color="#3B82F6" />
-        <StatCard title="Total Teachers" value={stats.totalTeachers} icon={GraduationCap} color="#10B981" />
-        <StatCard title="Subjects" value={stats.totalSubjects} icon={BookOpen} color="#F59E0B" />
-        <StatCard title="Grade Levels" value={stats.totalLevels} icon={School} color="#8B5CF6" />
+        <StatCard
+          title="Total Students"
+          value={stats.totalStudents}
+          icon={Users}
+          color="#3B82F6"
+        />
+        <StatCard
+          title="Total Teachers"
+          value={stats.totalTeachers}
+          icon={GraduationCap}
+          color="#10B981"
+        />
+        <StatCard
+          title="Subjects"
+          value={stats.totalSubjects}
+          icon={BookOpen}
+          color="#F59E0B"
+        />
+        <StatCard
+          title="Grade Levels"
+          value={stats.totalLevels}
+          icon={School}
+          color="#8B5CF6"
+        />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
         <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
           <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-            System Status
+            Academic Session
           </h3>
           <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-              <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full"></div>
-              <div>
-                <p className="text-sm font-medium">API Connection: Active</p>
-                <p className="text-xs text-gray-500">All services running</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-              <div className="w-2 h-2 sm:w-3 sm:h-3 bg-blue-500 rounded-full"></div>
-              <div>
-                <p className="text-sm font-medium">Database: Connected</p>
-                <p className="text-xs text-gray-500">Last sync: Just now</p>
-              </div>
-            </div>
             {currentSessionTerm && (
               <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg">
                 <div className="w-2 h-2 sm:w-3 sm:h-3 bg-purple-500 rounded-full"></div>
                 <div>
-                  <p className="text-sm font-medium">Current Session: {currentSessionTerm.sessionName}</p>
-                  <p className="text-xs text-gray-500">Term: {currentSessionTerm.termName}</p>
+                  <p className="text-sm font-medium">
+                    Current Session: {currentSessionTerm.sessionName}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Term: {currentSessionTerm.termName}
+                  </p>
                 </div>
               </div>
             )}
@@ -793,22 +900,58 @@ const AdminDashboard = () => {
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Link href="/student/get-students">
-              <ActionButton icon={Users} label="Manage Students" disabled={isLoading} />
+              <ActionButton
+                icon={Users}
+                label="Manage Students"
+                disabled={isLoading}
+              />
             </Link>
-            {user?.role?.toLowerCase() === 'superadmin' && (
+            {user?.role?.toLowerCase() === "superadmin" && (
               <Link href="/admin/get-admins">
-                <ActionButton icon={Users} label="Manage Admins" disabled={isLoading} />
+                <ActionButton
+                  icon={Users}
+                  label="Manage Admins"
+                  disabled={isLoading}
+                />
               </Link>
             )}
             <Link href="/teacher/get-teachers">
-              <ActionButton icon={GraduationCap} label="Manage Teachers" variant="success" disabled={isLoading} />
+              <ActionButton
+                icon={GraduationCap}
+                label="Manage Teachers"
+                variant="success"
+                disabled={isLoading}
+              />
             </Link>
             <Link href="/result">
-              <ActionButton icon={FileText} label="Result Dashboard" variant="success" disabled={isLoading} />
+              <ActionButton
+                icon={FileText}
+                label="Result Dashboard"
+                variant="success"
+                disabled={isLoading}
+              />
             </Link>
-            <ActionButton icon={Plus} label="Add Level" onClick={() => setShowLevelModal(true)} variant="secondary" disabled={isLoading} />
-            <ActionButton icon={Plus} label="Add Subject" onClick={() => setShowSubjectModal(true)} variant="secondary" disabled={isLoading} />
-            <ActionButton icon={Plus} label="Add Session" onClick={() => setShowSessionModal(true)} variant="secondary" disabled={isLoading} />
+            <ActionButton
+              icon={Plus}
+              label="Add Level"
+              onClick={() => setShowLevelModal(true)}
+              variant="secondary"
+              disabled={isLoading}
+            />
+            <ActionButton
+              icon={Plus}
+              label="Add Subject"
+              onClick={() => setShowSubjectModal(true)}
+              variant="secondary"
+              disabled={isLoading}
+            />
+            <ActionButton
+              icon={Plus}
+              label="Add Session"
+              onClick={() => setShowSessionModal(true)}
+              variant="secondary"
+              disabled={isLoading}
+            />
           </div>
         </div>
       </div>
@@ -817,30 +960,45 @@ const AdminDashboard = () => {
 
   const renderSubjects = () => {
     const subjectColumns = [
-      { key: 'name', header: 'Subject Name' },
-      { key: 'category', header: 'Category' },
-      { 
-        key: 'dateCreated', 
-        header: 'Created Date', 
-        render: (row) => row.dateCreated ? new Date(row.dateCreated).toLocaleDateString() : 'N/A'
-      }
+      { key: "name", header: "Subject Name" },
+      { key: "category", header: "Category" },
+      {
+        key: "dateCreated",
+        header: "Created Date",
+        render: (row) =>
+          row.dateCreated
+            ? new Date(row.dateCreated).toLocaleDateString()
+            : "N/A",
+      },
     ];
 
     const subjectActions = [
-      { icon: Edit, label: 'Edit', onClick: handleEditSubject, className: 'text-green-600 hover:bg-green-100' },
-      { icon: Trash2, label: 'Delete', onClick: handleDeleteSubject, className: 'text-red-600 hover:bg-red-100' }
+      {
+        icon: Edit,
+        label: "Edit",
+        onClick: handleEditSubject,
+        className: "text-green-600 hover:bg-green-100",
+      },
+      {
+        icon: Trash2,
+        label: "Delete",
+        onClick: handleDeleteSubject,
+        className: "text-red-600 hover:bg-red-100",
+      },
     ];
 
     return (
       <div className="space-y-4 sm:space-y-6">
-        {error && <ErrorAlert message={error} onClose={() => setError('')} />}
-        
+        {error && <ErrorAlert message={error} onClose={() => setError("")} />}
+
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Subjects Management</h2>
-          <ActionButton 
-            icon={Plus} 
-            label="Add New Subject" 
-            onClick={() => setShowSubjectModal(true)} 
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+            Subjects Management
+          </h2>
+          <ActionButton
+            icon={Plus}
+            label="Add New Subject"
+            onClick={() => setShowSubjectModal(true)}
             disabled={isLoading}
           />
         </div>
@@ -850,7 +1008,11 @@ const AdminDashboard = () => {
             <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600"></div>
           </div>
         ) : (
-          <DataTable data={subjects} columns={subjectColumns} actions={subjectActions} />
+          <DataTable
+            data={subjects}
+            columns={subjectColumns}
+            actions={subjectActions}
+          />
         )}
       </div>
     );
@@ -858,30 +1020,45 @@ const AdminDashboard = () => {
 
   const renderLevels = () => {
     const levelColumns = [
-      { key: 'levelName', header: 'Level Name' },
-      { key: 'category', header: 'Category' },
-      { 
-        key: 'dateCreated', 
-        header: 'Created Date', 
-        render: (row) => row.dateCreated ? new Date(row.dateCreated).toLocaleDateString() : 'N/A'
-      }
+      { key: "levelName", header: "Level Name" },
+      { key: "category", header: "Category" },
+      {
+        key: "dateCreated",
+        header: "Created Date",
+        render: (row) =>
+          row.dateCreated
+            ? new Date(row.dateCreated).toLocaleDateString()
+            : "N/A",
+      },
     ];
 
     const levelActions = [
-      { icon: Edit, label: 'Edit', onClick: handleEditLevel, className: 'text-green-600 hover:bg-green-100' },
-      { icon: Trash2, label: 'Delete', onClick: handleDeleteLevel, className: 'text-red-600 hover:bg-red-100' }
+      {
+        icon: Edit,
+        label: "Edit",
+        onClick: handleEditLevel,
+        className: "text-green-600 hover:bg-green-100",
+      },
+      {
+        icon: Trash2,
+        label: "Delete",
+        onClick: handleDeleteLevel,
+        className: "text-red-600 hover:bg-red-100",
+      },
     ];
 
     return (
       <div className="space-y-4 sm:space-y-6">
-        {error && <ErrorAlert message={error} onClose={() => setError('')} />}
-        
+        {error && <ErrorAlert message={error} onClose={() => setError("")} />}
+
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Grade Levels Management</h2>
-          <ActionButton 
-            icon={Plus} 
-            label="Add New Level" 
-            onClick={() => setShowLevelModal(true)} 
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+            Grade Levels Management
+          </h2>
+          <ActionButton
+            icon={Plus}
+            label="Add New Level"
+            onClick={() => setShowLevelModal(true)}
             disabled={isLoading}
           />
         </div>
@@ -891,7 +1068,11 @@ const AdminDashboard = () => {
             <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600"></div>
           </div>
         ) : (
-          <DataTable data={levels} columns={levelColumns} actions={levelActions} />
+          <DataTable
+            data={levels}
+            columns={levelColumns}
+            actions={levelActions}
+          />
         )}
       </div>
     );
@@ -899,39 +1080,53 @@ const AdminDashboard = () => {
 
   const renderSessions = () => {
     const sessionColumns = [
-      { key: 'sessionName', header: 'Session Name' },
-      { 
-        key: 'startDate', 
-        header: 'Start Date', 
-        render: (row) => row.startDate ? new Date(row.startDate).toLocaleDateString() : 'N/A'
+      { key: "sessionName", header: "Session Name" },
+      {
+        key: "startDate",
+        header: "Start Date",
+        render: (row) =>
+          row.startDate ? new Date(row.startDate).toLocaleDateString() : "N/A",
       },
-      { 
-        key: 'endDate', 
-        header: 'End Date', 
-        render: (row) => row.endDate ? new Date(row.endDate).toLocaleDateString() : 'N/A'
+      {
+        key: "endDate",
+        header: "End Date",
+        render: (row) =>
+          row.endDate ? new Date(row.endDate).toLocaleDateString() : "N/A",
       },
-      { 
-        key: 'currentSession', 
-        header: 'Status', 
-        render: (row) => row.currentSession ? 'Active' : 'Inactive'
-      }
+      {
+        key: "currentSession",
+        header: "Status",
+        render: (row) => (row.currentSession ? "Active" : "Inactive"),
+      },
     ];
 
     const sessionActions = [
-      { icon: Edit, label: 'Edit', onClick: handleEditSession, className: 'text-green-600 hover:bg-green-100' },
-      { icon: Trash2, label: 'Delete', onClick: handleDeleteSession, className: 'text-red-600 hover:bg-red-100' }
+      {
+        icon: Edit,
+        label: "Edit",
+        onClick: handleEditSession,
+        className: "text-green-600 hover:bg-green-100",
+      },
+      {
+        icon: Trash2,
+        label: "Delete",
+        onClick: handleDeleteSession,
+        className: "text-red-600 hover:bg-red-100",
+      },
     ];
 
     return (
       <div className="space-y-4 sm:space-y-6">
-        {error && <ErrorAlert message={error} onClose={() => setError('')} />}
-        
+        {error && <ErrorAlert message={error} onClose={() => setError("")} />}
+
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Sessions Management</h2>
-          <ActionButton 
-            icon={Plus} 
-            label="Add New Session" 
-            onClick={() => setShowSessionModal(true)} 
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+            Sessions Management
+          </h2>
+          <ActionButton
+            icon={Plus}
+            label="Add New Session"
+            onClick={() => setShowSessionModal(true)}
             disabled={isLoading}
           />
         </div>
@@ -947,18 +1142,18 @@ const AdminDashboard = () => {
               className="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-          <ActionButton 
-            icon={Calendar} 
-            label="End Current Session" 
-            onClick={handleEndSession} 
-            variant="danger" 
-            disabled={isLoading || !sessions.some(s => s.currentSession)}
+          <ActionButton
+            icon={Calendar}
+            label="End Current Session"
+            onClick={handleEndSession}
+            variant="danger"
+            disabled={isLoading || !sessions.some((s) => s.currentSession)}
           />
-          <ActionButton 
-            icon={Clock} 
-            label="Update Term" 
-            onClick={() => setShowTermModal(true)} 
-            variant="secondary" 
+          <ActionButton
+            icon={Clock}
+            label="Update Term"
+            onClick={() => setShowTermModal(true)}
+            variant="secondary"
             disabled={isLoading || !terms.length}
           />
         </div>
@@ -968,13 +1163,14 @@ const AdminDashboard = () => {
             <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600"></div>
           </div>
         ) : (
-          <DataTable 
-            data={sessions.filter(s => 
-              searchTerm === '' || 
-              s.sessionName.toLowerCase().includes(searchTerm.toLowerCase())
-            )} 
-            columns={sessionColumns} 
-            actions={sessionActions} 
+          <DataTable
+            data={sessions.filter(
+              (s) =>
+                searchTerm === "" ||
+                s.sessionName.toLowerCase().includes(searchTerm.toLowerCase())
+            )}
+            columns={sessionColumns}
+            actions={sessionActions}
           />
         )}
       </div>
@@ -987,26 +1183,30 @@ const AdminDashboard = () => {
       onClose={() => {
         setShowLevelModal(false);
         setEditingLevel(null);
-        setLevelForm({ levelName: '', description: '' });
+        setLevelForm({ levelName: "", description: "" });
       }}
-      title={editingLevel ? 'Edit Level' : 'Add New Level'}
+      title={editingLevel ? "Edit Level" : "Add New Level"}
       size="sm"
     >
       <form onSubmit={handleLevelSubmit}>
         <FormField
           label="Level Name"
           value={levelForm.levelName}
-          onChange={(e) => setLevelForm({ ...levelForm, levelName: e.target.value })}
+          onChange={(e) =>
+            setLevelForm({ ...levelForm, levelName: e.target.value })
+          }
           required
         />
         <FormField
           label="Category"
           type="select"
           value={levelForm.category}
-          onChange={(e) => setLevelForm({ ...levelForm, category: e.target.value })}
+          onChange={(e) =>
+            setLevelForm({ ...levelForm, category: e.target.value })
+          }
           options={[
-            { value: 'Junior', label: 'Junior' },
-            { value: 'Senior', label: 'Senior' }
+            { value: "Junior", label: "Junior" },
+            { value: "Senior", label: "Senior" },
           ]}
           required
         />
@@ -1016,7 +1216,7 @@ const AdminDashboard = () => {
             onClick={() => {
               setShowLevelModal(false);
               setEditingLevel(null);
-              setLevelForm({ levelName: '', category: '' });
+              setLevelForm({ levelName: "", category: "" });
             }}
             className="px-3 sm:px-4 py-2 text-gray-600 hover:text-gray-800 rounded-sm"
           >
@@ -1035,7 +1235,7 @@ const AdminDashboard = () => {
             ) : (
               <>
                 <Save className="w-4 h-4" />
-                {editingLevel ? 'Update' : 'Save'}
+                {editingLevel ? "Update" : "Save"}
               </>
             )}
           </button>
@@ -1050,26 +1250,30 @@ const AdminDashboard = () => {
       onClose={() => {
         setShowSubjectModal(false);
         setEditingSubject(null);
-        setSubjectForm({ name: '', description: '' });
+        setSubjectForm({ name: "", description: "" });
       }}
-      title={editingSubject ? 'Edit Subject' : 'Add New Subject'}
+      title={editingSubject ? "Edit Subject" : "Add New Subject"}
       size="sm"
     >
       <form onSubmit={handleSubjectSubmit}>
         <FormField
           label="Subject Name"
           value={subjectForm.name}
-          onChange={(e) => setSubjectForm({ ...subjectForm, name: e.target.value })}
+          onChange={(e) =>
+            setSubjectForm({ ...subjectForm, name: e.target.value })
+          }
           required
         />
         <FormField
           label="Category"
           type="select"
           value={subjectForm.category}
-          onChange={(e) => setSubjectForm({ ...subjectForm, category: e.target.value })}
+          onChange={(e) =>
+            setSubjectForm({ ...subjectForm, category: e.target.value })
+          }
           options={[
-            { value: 'Junior', label: 'Junior' },
-            { value: 'Senior', label: 'Senior' }
+            { value: "Junior", label: "Junior" },
+            { value: "Senior", label: "Senior" },
           ]}
           required
         />
@@ -1079,7 +1283,7 @@ const AdminDashboard = () => {
             onClick={() => {
               setShowSubjectModal(false);
               setEditingSubject(null);
-              setSubjectForm({ name: '', category: '' });
+              setSubjectForm({ name: "", category: "" });
             }}
             className="px-3 sm:px-4 py-2 text-gray-600 hover:text-gray-800 rounded-sm"
           >
@@ -1098,7 +1302,7 @@ const AdminDashboard = () => {
             ) : (
               <>
                 <Save className="w-4 h-4" />
-                {editingSubject ? 'Update' : 'Save'}
+                {editingSubject ? "Update" : "Save"}
               </>
             )}
           </button>
@@ -1113,30 +1317,36 @@ const AdminDashboard = () => {
       onClose={() => {
         setShowSessionModal(false);
         setEditingSession(null);
-        setSessionForm({ sessionName: '', startDate: '', endDate: '' });
+        setSessionForm({ sessionName: "", startDate: "", endDate: "" });
       }}
-      title={editingSession ? 'Edit Session' : 'Add New Session'}
+      title={editingSession ? "Edit Session" : "Add New Session"}
       size="sm"
     >
       <form onSubmit={handleSessionSubmit}>
         <FormField
           label="Session Name"
           value={sessionForm.sessionName}
-          onChange={(e) => setSessionForm({ ...sessionForm, sessionName: e.target.value })}
+          onChange={(e) =>
+            setSessionForm({ ...sessionForm, sessionName: e.target.value })
+          }
           required
         />
         <FormField
           label="Start Date"
           type="date"
           value={sessionForm.startDate}
-          onChange={(e) => setSessionForm({ ...sessionForm, startDate: e.target.value })}
+          onChange={(e) =>
+            setSessionForm({ ...sessionForm, startDate: e.target.value })
+          }
           required
         />
         <FormField
           label="End Date"
           type="date"
           value={sessionForm.endDate}
-          onChange={(e) => setSessionForm({ ...sessionForm, endDate: e.target.value })}
+          onChange={(e) =>
+            setSessionForm({ ...sessionForm, endDate: e.target.value })
+          }
           required
         />
         <div className="flex justify-end gap-3 mt-6">
@@ -1145,7 +1355,7 @@ const AdminDashboard = () => {
             onClick={() => {
               setShowSessionModal(false);
               setEditingSession(null);
-              setSessionForm({ sessionName: '', startDate: '', endDate: '' });
+              setSessionForm({ sessionName: "", startDate: "", endDate: "" });
             }}
             className="px-3 sm:px-4 py-2 text-gray-600 hover:text-gray-800 rounded-sm"
           >
@@ -1164,7 +1374,7 @@ const AdminDashboard = () => {
             ) : (
               <>
                 <Save className="w-4 h-4" />
-                {editingSession ? 'Update' : 'Save'}
+                {editingSession ? "Update" : "Save"}
               </>
             )}
           </button>
@@ -1178,7 +1388,7 @@ const AdminDashboard = () => {
       show={showTermModal}
       onClose={() => {
         setShowTermModal(false);
-        setTermForm({ termId: '' });
+        setTermForm({ termId: "" });
       }}
       title="Update Current Term"
       size="sm"
@@ -1189,7 +1399,7 @@ const AdminDashboard = () => {
           type="select"
           value={termForm.termId}
           onChange={(e) => setTermForm({ ...termForm, termId: e.target.value })}
-          options={terms.map(term => ({ value: term.id, label: term.name }))}
+          options={terms.map((term) => ({ value: term.id, label: term.name }))}
           required
         />
         <div className="flex justify-end gap-3 mt-6">
@@ -1197,7 +1407,7 @@ const AdminDashboard = () => {
             type="button"
             onClick={() => {
               setShowTermModal(false);
-              setTermForm({ termId: '' });
+              setTermForm({ termId: "" });
             }}
             className="px-3 sm:px-4 py-2 text-gray-600 hover:text-gray-800 rounded-sm"
           >
@@ -1227,11 +1437,16 @@ const AdminDashboard = () => {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'overview': return renderOverview();
-      case 'subjects': return renderSubjects();
-      case 'levels': return renderLevels();
-      case 'sessions': return renderSessions();
-      default: return renderOverview();
+      case "overview":
+        return renderOverview();
+      case "subjects":
+        return renderSubjects();
+      case "levels":
+        return renderLevels();
+      case "sessions":
+        return renderSessions();
+      default:
+        return renderOverview();
     }
   };
 
@@ -1239,18 +1454,23 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Mobile sidebar overlay */}
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
-      
+
       <div className="flex">
         {/* Sidebar */}
-        <div className={`
+        <div
+          className={`
           fixed lg:static inset-y-0 left-0 z-40 lg:z-30 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
-          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-        `}>
+          ${isSidebarOpen
+              ? "translate-x-0"
+              : "-translate-x-full lg:translate-x-0"
+            }
+        `}
+        >
           <div className="p-4 lg:p-6 border-b lg:border-b-0">
             <div className="flex items-center justify-between">
               <h1 className="text-lg lg:text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -1265,14 +1485,14 @@ const AdminDashboard = () => {
               </button>
             </div>
           </div>
-          
+
           <nav className="px-4 pb-4">
             <div className="space-y-2">
               <TabButton
                 id="overview"
                 label="Overview"
                 icon={BarChart3}
-                isActive={activeTab === 'overview'}
+                isActive={activeTab === "overview"}
                 onClick={(tab) => {
                   setActiveTab(tab);
                   setIsSidebarOpen(false);
@@ -1282,7 +1502,7 @@ const AdminDashboard = () => {
                 id="subjects"
                 label="Subjects"
                 icon={BookOpen}
-                isActive={activeTab === 'subjects'}
+                isActive={activeTab === "subjects"}
                 onClick={(tab) => {
                   setActiveTab(tab);
                   setIsSidebarOpen(false);
@@ -1292,7 +1512,7 @@ const AdminDashboard = () => {
                 id="levels"
                 label="Grade Levels"
                 icon={School}
-                isActive={activeTab === 'levels'}
+                isActive={activeTab === "levels"}
                 onClick={(tab) => {
                   setActiveTab(tab);
                   setIsSidebarOpen(false);
@@ -1302,7 +1522,7 @@ const AdminDashboard = () => {
                 id="sessions"
                 label="Sessions"
                 icon={Clock}
-                isActive={activeTab === 'sessions'}
+                isActive={activeTab === "sessions"}
                 onClick={(tab) => {
                   setActiveTab(tab);
                   setIsSidebarOpen(false);
@@ -1323,11 +1543,13 @@ const AdminDashboard = () => {
               >
                 <Menu className="w-6 h-6" />
               </button>
-              <h1 className="text-lg font-semibold text-gray-900">School Admin</h1>
+              <h1 className="text-lg font-semibold text-gray-900">
+                School Admin
+              </h1>
               <div className="w-10" /> {/* Spacer for centering */}
             </div>
           </div>
-          
+
           <div className="p-4 lg:p-8">
             {renderContent()}
             {renderLevelModal()}
@@ -1341,4 +1563,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default withAuth(AdminDashboard, ['superadmin', 'admin']);
+export default withAuth(AdminDashboard, ["superadmin", "admin"]);

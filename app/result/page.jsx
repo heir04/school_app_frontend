@@ -355,43 +355,56 @@ const ResultDashboard = () => {
           color="#8B5CF6"
           description="Available subjects"
         />
-      </div><div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+      </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
         <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-blue-600" />
             Quick Actions
           </h3>
-          <div className="space-y-3">
-            {user?.role?.toLowerCase() === 'teacher' && (
-              <Link href="/result/create-bulk">
-                <ActionButton
-                title="Create Bulk Results"
-                description="Upload multiple results at once"
-                icon={Plus}
-                onClick={() => {}}
-                color="#3B82F6"
-              />
-              </Link>
+          <div className="space-y-4">
+            {user?.role?.toLowerCase() === 'teacher' && ( 
+              <div className="mb-4">
+                <Link href="/result/create-bulk">
+                  <ActionButton
+                    title="Create Bulk Results"
+                    description="Upload multiple results at once"
+                    icon={Plus}
+                    onClick={() => {}}
+                    color="#3B82F6"
+                  />
+                </Link>
+              </div>
             )}
+            
             {(user?.role?.toLowerCase() === 'admin' || user?.role?.toLowerCase() === 'superadmin') && (
-
-              <Link href="/result/manage-remarks">
-                <ActionButton
-                  title="Manage Remarks"
-                  description="Add or update result remarks"
-                  icon={MessageCircle}
-                  onClick={() => {}}
-                  color="#F59E0B"
-                />
-              </Link>
+              <div className="mb-4">
+                <Link href="/result/manage-remarks">
+                  <ActionButton
+                    title="Manage Remarks"
+                    description="Add or update result remarks"
+                    icon={MessageCircle}
+                    onClick={() => {}}
+                    color="#F59E0B"
+                  />
+                </Link>
+              </div>
             )}
-            <ActionButton
-              title="Export Results"
-              description="Download results as CSV/PDF"
-              icon={Download}
-              onClick={() => console.log('Export Results')}
-              color="#10B981"
-            />
+            
+            {(user?.role?.toLowerCase() === 'admin' || user?.role?.toLowerCase() === 'superadmin') && (
+              <div className="mb-4">
+                <Link href="/result/get-student-results">
+                  <ActionButton
+                    title="Student Results"
+                    description="View academic results for any student"
+                    icon={Eye}
+                    onClick={() => {}}
+                    color="#10B981"
+                  />
+                </Link>
+              </div>
+            )}
           </div>
         </div>
 

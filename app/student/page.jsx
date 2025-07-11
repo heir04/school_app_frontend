@@ -323,13 +323,6 @@ const StudentDashboard = () => {
       
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900">My Profile</h2>
-        <button 
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          onClick={() => console.log('Edit profile')}
-        >
-          <Edit className="w-4 h-4" />
-          Edit Profile
-        </button>
       </div>
 
       {isLoading ? (

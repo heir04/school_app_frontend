@@ -1,8 +1,9 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "../app/contexts/AuthContext";
-import { User, LogOut, ChevronDown, Shield, Bell, ArrowLeft } from "lucide-react";
+import { User, LogOut, ChevronDown, Shield, Bell, LayoutDashboard, GraduationCap } from "lucide-react";
 import Image from "next/image";
 
 const API_BASE_URL = "https://schoolapp-production-e49d.up.railway.app/api";
@@ -155,7 +156,7 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo/Brand */}
-            <div className="flex items-center">
+            <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
               <Image
                 src="/images/logo.png"
                 alt="Fazl-I-Omar Academy Logo"
@@ -166,7 +167,7 @@ const Navbar = () => {
               <span className="text-xl font-bold text-gray-900">
                 Fazl-I-Omar Academy
               </span>
-            </div>
+            </Link>
 
             {/* Right side - User menu */}
             <div className="flex items-center space-x-4">
@@ -248,7 +249,7 @@ const Navbar = () => {
                               onClick={() => router.push("/teacher")}
                               className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                             >
-                              <ArrowLeft className="w-4 h-4 mr-3" />
+                              <LayoutDashboard className="w-4 h-4 mr-3" />
                               Dashboard
                             </button>
                           )}
@@ -257,7 +258,7 @@ const Navbar = () => {
                               onClick={() => router.push("/student")}
                               className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                             >
-                              <ArrowLeft className="w-4 h-4 mr-3" />
+                              <GraduationCap className="w-4 h-4 mr-3" />
                               Portal
                             </button>
                           )}
@@ -267,7 +268,7 @@ const Navbar = () => {
                               onClick={() => router.push("/admin")}
                               className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                             >
-                              <ArrowLeft className="w-4 h-4 mr-3" />
+                              <LayoutDashboard className="w-4 h-4 mr-3" />
                               Dashboard
                             </button>
                           )}
