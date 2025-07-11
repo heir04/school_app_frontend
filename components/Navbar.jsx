@@ -23,6 +23,7 @@ const Navbar = () => {
   };
 
   const handleUpdatePasswordClick = () => {
+    setIsProfileDropdownOpen(false);
     router.push("/user/update-password");
   };
 
@@ -246,7 +247,10 @@ const Navbar = () => {
                         <>
                           {user.role.toLowerCase() === "teacher" && (
                             <button
-                              onClick={() => router.push("/teacher")}
+                              onClick={() => {
+                                setIsProfileDropdownOpen(false);
+                                router.push("/teacher");
+                              }}
                               className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                             >
                               <LayoutDashboard className="w-4 h-4 mr-3" />
@@ -255,7 +259,10 @@ const Navbar = () => {
                           )}
                           {user.role.toLowerCase() === "student" && (
                             <button
-                              onClick={() => router.push("/student")}
+                              onClick={() => {
+                                setIsProfileDropdownOpen(false);
+                                router.push("/student");
+                              }}
                               className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                             >
                               <GraduationCap className="w-4 h-4 mr-3" />
@@ -265,7 +272,10 @@ const Navbar = () => {
                           {(user.role.toLowerCase() === "admin" ||
                             user.role.toLowerCase() === "superadmin") && (
                             <button
-                              onClick={() => router.push("/admin")}
+                              onClick={() => {
+                                setIsProfileDropdownOpen(false);
+                                router.push("/admin");
+                              }}
                               className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                             >
                               <LayoutDashboard className="w-4 h-4 mr-3" />
