@@ -1,17 +1,11 @@
-"use client"
-import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '../app/contexts/AuthContext';
-import { 
-  User, 
-  LogOut, 
-  ChevronDown,
-  Shield,
-  Bell
-} from 'lucide-react';
-import Image from 'next/image';
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "../app/contexts/AuthContext";
+import { User, LogOut, ChevronDown, Shield, Bell, ArrowLeft } from "lucide-react";
+import Image from "next/image";
 
-const API_BASE_URL = 'https://schoolapp-production-e49d.up.railway.app/api';
+const API_BASE_URL = "https://schoolapp-production-e49d.up.railway.app/api";
 
 const Navbar = () => {
   const router = useRouter();
@@ -24,51 +18,51 @@ const Navbar = () => {
 
   // Get auth token from localStorage
   const getAuthToken = () => {
-    return localStorage.getItem('auth-token');
+    return localStorage.getItem("auth-token");
   };
 
   const handleUpdatePasswordClick = () => {
-    router.push('/user/update-password');
+    router.push("/user/update-password");
   };
 
   // Create headers with auth token
   const getAuthHeaders = () => {
     const token = getAuthToken();
     return {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     };
   };
 
   // Fetch user details from backend
   const fetchUserDetails = async () => {
     if (!user) return;
-    
+
     setIsLoading(true);
     try {
-      let endpoint = '';
-      
+      let endpoint = "";
+
       // Determine endpoint based on user role
       switch (user.role?.toLowerCase()) {
-        case 'admin':
-          endpoint = '/Admin/GetProfile'; // Adjust based on your actual endpoint
+        case "admin":
+          endpoint = "/Admin/GetProfile"; // Adjust based on your actual endpoint
           break;
-        case 'superadmin':
-          endpoint = '/Admin/GetProfile';
+        case "superadmin":
+          endpoint = "/Admin/GetProfile";
           break;
-        case 'teacher':
-          endpoint = '/Teacher/GetProfile';
+        case "teacher":
+          endpoint = "/Teacher/GetProfile";
           break;
-        case 'student':
-          endpoint = '/Student/GetProfile';
+        case "student":
+          endpoint = "/Student/GetProfile";
           break;
         default:
-          endpoint = '/User/GetDetails';
+          endpoint = "/User/GetDetails";
       }
 
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method: 'GET',
-        headers: getAuthHeaders()
+        method: "GET",
+        headers: getAuthHeaders(),
       });
 
       if (response.ok) {
@@ -78,7 +72,7 @@ const Navbar = () => {
         }
       }
     } catch (error) {
-      console.error('Error fetching user details:', error);
+      console.error("Error fetching user details:", error);
     } finally {
       setIsLoading(false);
     }
@@ -92,8 +86,8 @@ const Navbar = () => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Fetch user details when user changes
@@ -111,8 +105,9 @@ const Navbar = () => {
       }
     };
 
-    window.addEventListener('orientationchange', handleOrientationChange);
-    return () => window.removeEventListener('orientationchange', handleOrientationChange);
+    window.addEventListener("orientationchange", handleOrientationChange);
+    return () =>
+      window.removeEventListener("orientationchange", handleOrientationChange);
   }, []);
 
   // Don't render navbar if not authenticated
@@ -134,21 +129,24 @@ const Navbar = () => {
         return userDetails.name;
       }
     }
-    return user?.email || 'User';
+    return user?.email || "User";
   };
 
   const getUserInitials = () => {
     const name = getUserDisplayName();
     return name
-      .split(' ')
-      .map(word => word.charAt(0))
-      .join('')
+      .split(" ")
+      .map((word) => word.charAt(0))
+      .join("")
       .toUpperCase()
       .slice(0, 2);
   };
 
   const getRoleDisplayName = () => {
-    return user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1).toLowerCase() || 'User';
+    return (
+      user?.role?.charAt(0).toUpperCase() +
+        user?.role?.slice(1).toLowerCase() || "User"
+    );
   };
 
   return (
@@ -158,14 +156,16 @@ const Navbar = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo/Brand */}
             <div className="flex items-center">
-              <Image 
-                src="/images/logo.jpg" 
-                alt="Fazl-I-Omar Academy Logo" 
-                width={32} 
-                height={32} 
+              <Image
+                src="/images/logo.png"
+                alt="Fazl-I-Omar Academy Logo"
+                width={32}
+                height={32}
                 className="mr-2 rounded"
               />
-              <span className="text-xl font-bold text-gray-900">Fazl-I-Omar Academy</span>
+              <span className="text-xl font-bold text-gray-900">
+                Fazl-I-Omar Academy
+              </span>
             </div>
 
             {/* Right side - User menu */}
@@ -178,14 +178,16 @@ const Navbar = () => {
               {/* Profile Dropdown */}
               <div className="relative" ref={dropdownRef}>
                 <button
-                  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                  onClick={() =>
+                    setIsProfileDropdownOpen(!isProfileDropdownOpen)
+                  }
                   className="flex items-center space-x-3 p-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                 >
                   {/* Avatar */}
                   <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
                     {getUserInitials()}
                   </div>
-                  
+
                   {/* User info */}
                   <div className="hidden md:block text-left">
                     <div className="text-sm font-medium text-gray-900">
@@ -195,10 +197,12 @@ const Navbar = () => {
                       {getRoleDisplayName()}
                     </div>
                   </div>
-                  
-                  <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${
-                    isProfileDropdownOpen ? 'rotate-180' : ''
-                  }`} />
+
+                  <ChevronDown
+                    className={`w-4 h-4 text-gray-400 transition-transform ${
+                      isProfileDropdownOpen ? "rotate-180" : ""
+                    }`}
+                  />
                 </button>
 
                 {/* Dropdown Menu */}
@@ -236,7 +240,40 @@ const Navbar = () => {
                         <User className="w-4 h-4 mr-3" />
                         View My Profile
                       </button>
-                      
+
+                      {user && user.role && (
+                        <>
+                          {user.role.toLowerCase() === "teacher" && (
+                            <button
+                              onClick={() => router.push("/teacher")}
+                              className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                            >
+                              <ArrowLeft className="w-4 h-4 mr-3" />
+                              Dashboard
+                            </button>
+                          )}
+                          {user.role.toLowerCase() === "student" && (
+                            <button
+                              onClick={() => router.push("/student")}
+                              className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                            >
+                              <ArrowLeft className="w-4 h-4 mr-3" />
+                              Portal
+                            </button>
+                          )}
+                          {(user.role.toLowerCase() === "admin" ||
+                            user.role.toLowerCase() === "superadmin") && (
+                            <button
+                              onClick={() => router.push("/admin")}
+                              className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                            >
+                              <ArrowLeft className="w-4 h-4 mr-3" />
+                              Dashboard
+                            </button>
+                          )}
+                        </>
+                      )}
+
                       <button
                         onClick={handleUpdatePasswordClick}
                         className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
@@ -280,11 +317,11 @@ const Navbar = () => {
 // Profile Modal Component
 const ProfileModal = ({ user, userDetails, isLoading, onClose }) => {
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -297,7 +334,7 @@ const ProfileModal = ({ user, userDetails, isLoading, onClose }) => {
         <div className="animate-pulse h-4 bg-gray-200 rounded w-3/4"></div>
       ) : (
         <div className="text-sm text-gray-900 bg-gray-50 p-2 rounded border">
-          {value || 'N/A'}
+          {value || "N/A"}
         </div>
       )}
     </div>
@@ -325,57 +362,62 @@ const ProfileModal = ({ user, userDetails, isLoading, onClose }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Basic Information */}
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
-              
-              <ProfileField 
-                label="First Name" 
-                value={userDetails?.firstName} 
-                loading={isLoading} 
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                Basic Information
+              </h3>
+
+              <ProfileField
+                label="First Name"
+                value={userDetails?.firstName}
+                loading={isLoading}
               />
-              
-              <ProfileField 
-                label="Last Name" 
-                value={userDetails?.lastName} 
-                loading={isLoading} 
+
+              <ProfileField
+                label="Last Name"
+                value={userDetails?.lastName}
+                loading={isLoading}
               />
-              
-              <ProfileField 
-                label="Email" 
-                value={user?.email || userDetails?.email} 
+
+              <ProfileField
+                label="Email"
+                value={user?.email || userDetails?.email}
               />
-              
-              <ProfileField 
-                label="Role" 
-                value={user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1).toLowerCase()} 
+
+              <ProfileField
+                label="Role"
+                value={
+                  user?.role?.charAt(0).toUpperCase() +
+                  user?.role?.slice(1).toLowerCase()
+                }
               />
 
               {/* Role-specific fields */}
-              {user?.role?.toLowerCase() === 'student' && (
+              {user?.role?.toLowerCase() === "student" && (
                 <>
-                  <ProfileField 
-                    label="Student ID" 
-                    value={userDetails?.studentId} 
-                    loading={isLoading} 
+                  <ProfileField
+                    label="Student ID"
+                    value={userDetails?.studentId}
+                    loading={isLoading}
                   />
-                  <ProfileField 
-                    label="Class/Level" 
-                    value={userDetails?.levelName || userDetails?.className} 
-                    loading={isLoading} 
+                  <ProfileField
+                    label="Class/Level"
+                    value={userDetails?.levelName || userDetails?.className}
+                    loading={isLoading}
                   />
                 </>
               )}
 
-              {user?.role?.toLowerCase() === 'teacher' && (
+              {user?.role?.toLowerCase() === "teacher" && (
                 <>
-                  <ProfileField 
-                    label="Teacher ID" 
-                    value={userDetails?.teacherId} 
-                    loading={isLoading} 
+                  <ProfileField
+                    label="Teacher ID"
+                    value={userDetails?.teacherId}
+                    loading={isLoading}
                   />
-                  <ProfileField 
-                    label="Department" 
-                    value={userDetails?.department} 
-                    loading={isLoading} 
+                  <ProfileField
+                    label="Department"
+                    value={userDetails?.department}
+                    loading={isLoading}
                   />
                 </>
               )}
@@ -383,38 +425,41 @@ const ProfileModal = ({ user, userDetails, isLoading, onClose }) => {
 
             {/* Additional Information */}
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Additional Information</h3>
-              
-              <ProfileField 
-                label="Phone Number" 
-                value={userDetails?.phoneNumber || userDetails?.phone} 
-                loading={isLoading} 
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                Additional Information
+              </h3>
+
+              <ProfileField
+                label="Phone Number"
+                value={userDetails?.phoneNumber || userDetails?.phone}
+                loading={isLoading}
               />
-              
-              <ProfileField 
-                label="Date of Birth" 
-                value={formatDate(userDetails?.dateOfBirth)} 
-                loading={isLoading} 
+
+              <ProfileField
+                label="Date of Birth"
+                value={formatDate(userDetails?.dateOfBirth)}
+                loading={isLoading}
               />
-              
-              <ProfileField 
-                label="Address" 
-                value={userDetails?.address} 
-                loading={isLoading} 
+
+              <ProfileField
+                label="Address"
+                value={userDetails?.address}
+                loading={isLoading}
               />
-              
-              <ProfileField 
-                label="Gender" 
-                value={userDetails?.gender} 
-                loading={isLoading} 
+
+              <ProfileField
+                label="Gender"
+                value={userDetails?.gender}
+                loading={isLoading}
               />
-              
-              <ProfileField 
-                label="Registration Date" 
-                value={formatDate(userDetails?.createdOn || userDetails?.registrationDate)} 
-                loading={isLoading} 
+
+              <ProfileField
+                label="Registration Date"
+                value={formatDate(
+                  userDetails?.createdOn || userDetails?.registrationDate
+                )}
+                loading={isLoading}
               />
-              
             </div>
           </div>
         </div>

@@ -255,13 +255,6 @@ const StudentDashboard = () => {
           <h3 className="text-base sm:text-lg font-semibold text-gray-900">Quick Actions</h3>
           <div className="space-y-4">
             <ActionCard
-              title="View Profile"
-              description="Check and update your personal information"
-              icon={User}
-              color="#3B82F6"
-              onClick={() => setActiveTab('profile')}
-            />
-            <ActionCard
               title="My Classmates"
               description="See who's in your class"
               icon={User}
@@ -271,6 +264,15 @@ const StudentDashboard = () => {
             <Link href="/result/check-result" className="block">
               <ActionCard 
                 title="View Results"
+                description="Check your academic performance"
+                icon={Award}
+                color="#F59E0B"
+                onClick={() => {}}
+              />
+            </Link>
+            <Link href="/result/get-all-results" className="block">
+              <ActionCard 
+                title="View All My Results"
                 description="Check your academic performance"
                 icon={Award}
                 color="#F59E0B"

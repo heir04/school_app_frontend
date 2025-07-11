@@ -98,7 +98,7 @@ const HomePage = () => {
           <div className="flex flex-col sm:flex-row justify-between items-center py-4 gap-4">
             <div className="flex items-center gap-2 sm:gap-3">
               <Image 
-                src="/images/logo.jpg" 
+                src="/images/logo.png" 
                 alt="Fazl-I-Omar Academy Logo" 
                 width={32} 
                 height={32} 
