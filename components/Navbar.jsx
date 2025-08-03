@@ -6,7 +6,7 @@ import { useAuth } from "../app/contexts/AuthContext";
 import { User, LogOut, ChevronDown, Shield, Bell, LayoutDashboard, GraduationCap } from "lucide-react";
 import Image from "next/image";
 
-const API_BASE_URL = "https://schoolapp-production-e49d.up.railway.app/api";
+const API_BASE_URL = "https://schoolapp-production-ac99.up.railway.app/api";
 
 const Navbar = () => {
   const router = useRouter();

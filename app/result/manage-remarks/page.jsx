@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { withAuth } from '../../contexts/AuthContext';
 
-const API_BASE_URL = 'https://schoolapp-production-e49d.up.railway.app/api';
+const API_BASE_URL = 'https://schoolapp-production-ac99.up.railway.app/api';
 
 const AdminResultsRemarksPage = () => {
   const [selectedLevel, setSelectedLevel] = useState('');

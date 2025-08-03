@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { withAuth } from '../../contexts/AuthContext';
 
-const API_BASE_URL = 'https://schoolapp-production-e49d.up.railway.app/api';
+const API_BASE_URL = 'https://schoolapp-production-ac99.up.railway.app/api';
 
 const FormField = ({ label, type = 'text', value, onChange, options, required = false }) => (
   <div className="mb-4">

@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
   // Login function
   const login = async (email, password) => {
     try {
-      const response = await fetch('https://schoolapp-production-e49d.up.railway.app/api/User/Login', {
+      const response = await fetch('https://schoolapp-production-ac99.up.railway.app/api/User/Login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

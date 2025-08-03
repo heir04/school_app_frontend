@@ -23,7 +23,7 @@ import { withAuth, useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-const API_BASE_URL = 'https://schoolapp-production-e49d.up.railway.app/api';
+const API_BASE_URL = 'https://schoolapp-production-ac99.up.railway.app/api';
 
 const ResultDashboard = () => {
   const { user } = useAuth();

@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { withAuth, useAuth } from "../contexts/AuthContext";
 
-const API_BASE_URL = "https://schoolapp-production-e49d.up.railway.app/api";
+const API_BASE_URL = "https://schoolapp-production-ac99.up.railway.app/api";
 
 const FormField = ({
   label,

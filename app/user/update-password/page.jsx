@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { useAuth, withAuth } from '../../contexts/AuthContext';
 
-const API_BASE_URL = 'https://schoolapp-production-e49d.up.railway.app/api';
+const API_BASE_URL = 'https://schoolapp-production-ac99.up.railway.app/api';
 
 const PasswordField = ({ label, value, onChange, show, onToggle, placeholder }) => (
     <div className="mb-4">

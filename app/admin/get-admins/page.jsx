@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { withAuth } from '../../contexts/AuthContext';
 
-const API_BASE_URL = 'https://schoolapp-production-e49d.up.railway.app/api';
+const API_BASE_URL = 'https://schoolapp-production-ac99.up.railway.app/api';
 
 // Fixed FormField component - moved outside and fixed multi-select handling
 const FormField = ({ label, type = 'text', value, onChange, options, multiple = false, required = false }) => (
