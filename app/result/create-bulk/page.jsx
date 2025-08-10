@@ -153,11 +153,16 @@ const BulkResultDashboard = () => {
   };
 
   const getGrade = (total) => {
-    if (total >= 70) return { grade: 'A', color: 'text-green-600' };
-    if (total >= 60) return { grade: 'B', color: 'text-blue-600' };
-    if (total >= 50) return { grade: 'C', color: 'text-yellow-600' };
-    if (total >= 40) return { grade: 'D', color: 'text-orange-600' };
-    return { grade: 'F', color: 'text-red-600' };
+    if (total >= 90) return { grade: 'A+', color: 'text-green-600' };
+    if (total >= 75) return { grade: 'A', color: 'text-green-600' };
+    if (total >= 70) return { grade: 'B2', color: 'text-blue-600' };
+    if (total >= 65) return { grade: 'B3', color: 'text-blue-600' };
+    if (total >= 60) return { grade: 'C4', color: 'text-blue-600' };
+    if (total >= 55) return { grade: 'C5', color: 'text-yellow-600' };
+    if (total >= 50) return { grade: 'C6', color: 'text-yellow-600' };
+    if (total >= 45) return { grade: 'D7', color: 'text-yellow-600' };
+    if (total >= 40) return { grade: 'E8', color: 'text-yellow-600' };
+    return { grade: 'F9', color: 'text-red-600' };
   };
 
   const validateScores = () => {
@@ -506,7 +511,7 @@ const BulkResultDashboard = () => {
                 <li>• Enter Continuous Assessment scores (0-40) and Exam scores (0-60)</li>
                 <li>• Students with existing scores for this subject will be skipped</li>
                 <li>• Total score is automatically calculated (C/A + Exam)</li>
-                <li>• Grades: A (70-100), B (60-69), C (50-59), D (40-49), F (0-39)</li>
+                <li>• Grades: A+ (90-100), A (75-89), B2 (70-74), B3 (65-69), C4 (60-64), C5 (55-59), C6 (50-54), D7 (45-49), E8 (40-44), F9 (0-39)</li>
                 <li>• Results are submitted for the current term set by the system</li>
               </ul>
             </div>

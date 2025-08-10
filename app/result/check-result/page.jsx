@@ -89,18 +89,22 @@ const CheckResults = () => {
 
   const getGrade = (score) => {
     if (score >= 90) return 'A+';
-    if (score >= 80) return 'A';
-    if (score >= 70) return 'B';
-    if (score >= 60) return 'C';
-    if (score >= 50) return 'D';
-    return 'F';
+    if (score >= 75) return 'A';
+    if (score >= 70) return 'B2';
+    if (score >= 65) return 'B3';
+    if (score >= 60) return 'C4';
+    if (score >= 55) return 'C5';
+    if (score >= 50) return 'C6';
+    if (score >= 45) return 'D7';
+    if (score >= 40) return 'E8';
+    return 'F9';
   };
 
   const getGradeColor = (score) => {
-    if (score >= 80) return 'text-green-600';
-    if (score >= 60) return 'text-blue-600';
-    if (score >= 50) return 'text-yellow-600';
-    return 'text-red-600';
+    if (score >= 75) return 'text-green-600';  // A+ and A grades
+    if (score >= 60) return 'text-blue-600';   // B2, B3, C4 grades
+    if (score >= 40) return 'text-yellow-600'; // C5, C6, D7, E8 grades
+    return 'text-red-600';                     // F9 grade
   };
 
   const downloadPDF = async () => {
