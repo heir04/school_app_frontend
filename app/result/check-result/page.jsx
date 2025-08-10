@@ -100,6 +100,19 @@ const CheckResults = () => {
     return 'F9';
   };
 
+  const getGradeRemark = (score) => {
+    if (score >= 90) return 'Excellent';
+    if (score >= 75) return 'Very Good';
+    if (score >= 70) return 'Good';
+    if (score >= 65) return 'Good';
+    if (score >= 60) return 'Credit';
+    if (score >= 55) return 'Credit';
+    if (score >= 50) return 'Credit';
+    if (score >= 45) return 'Pass';
+    if (score >= 40) return 'Pass';
+    return 'Fail';
+  };
+
   const getGradeColor = (score) => {
     if (score >= 75) return 'text-green-600';  // A+ and A grades
     if (score >= 60) return 'text-blue-600';   // B2, B3, C4 grades
@@ -296,7 +309,7 @@ const CheckResults = () => {
                             {getGrade(subject.totalScore)}
                           </td>
                           <td className="border border-gray-300 px-4 py-2 text-center text-sm">
-                            {subject.totalScore >= 50 ? 'Pass' : 'Fail'}
+                            {getGradeRemark(subject.totalScore)}
                           </td>
                         </tr>
                       ))}
@@ -448,11 +461,15 @@ const CheckResults = () => {
                           </td>
                           <td className="px-6 py-4 text-center whitespace-nowrap">
                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              subject.totalScore >= 50 
-                                ? 'bg-green-100 text-green-800' 
+                              subject.totalScore >= 40 
+                                ? subject.totalScore >= 75
+                                  ? 'bg-green-100 text-green-800'
+                                  : subject.totalScore >= 60
+                                  ? 'bg-blue-100 text-blue-800'
+                                  : 'bg-yellow-100 text-yellow-800'
                                 : 'bg-red-100 text-red-800'
                             }`}>
-                              {subject.totalScore >= 50 ? 'Pass' : 'Fail'}
+                              {getGradeRemark(subject.totalScore)}
                             </span>
                           </td>
                         </tr>
